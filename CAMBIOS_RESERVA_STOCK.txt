@@ -1,0 +1,10 @@
+CAMBIO IMPORTANTE: antes de ejecutar esta version, correr db/neon_reserva_stock_pedidos.sql en Neon.
+
+Nuevo pedido: se reservan insumos y productos dentro de la compra (EN_PROCESO).
+Cancelacion dentro de cinco minutos: devuelve la reserva exactamente una vez.
+Realizacion: no vuelve a descontar la reserva; acredita puntos.
+Pedidos anteriores a la migracion: se mantienen con stock_reservado=false y usan el proceso anterior.
+La disponibilidad de los combos se recalcula segun los articulos configurados.
+El selector de personalizacion filtra stock>0 y habilitacion manual.
+
+NOTA: no se ha probado contra una BD Neon real. Respaldar BD antes de aplicar la migracion.

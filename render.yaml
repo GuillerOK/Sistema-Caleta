@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: lacaleta-pizzeria
+    runtime: docker
+    dockerfilePath: Dockerfile
+    plan: free
+    region: ohio
+    healthCheckPath: /
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_USERNAME
+        sync: false
+      - key: DATABASE_PASSWORD
+        sync: false
+      - key: DDL_AUTO
+        value: validate
+      - key: MAIL_HOST
+        value: smtp.gmail.com
+      - key: MAIL_PORT
+        value: 587
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+

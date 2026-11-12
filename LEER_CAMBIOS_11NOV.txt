@@ -1,0 +1,19 @@
+PIZZERIA LA CALETA - CAMBIOS PUNTUALES
+
+1. Modal combos: solo muestra pizzas, bebidas y acompanamientos. Un unico boton guarda en combo_items. No se solicitan insumos directos al combo.
+2. Las pizzas individuales conservan su editor de recetas. El stock de pizzas sin receta pasa a 0; los combos sin articulos tambien pasan a 0.
+3. PedidoService ya calcula los consumos a partir de los productos seleccionados en el combo y omite las recetas directas del combo. No se altero la logica de pedidos ni puntos.
+4. Carrusel: desplazamiento por tarjeta y ajuste para moviles; imagenes completas con object-fit contain.
+5. Pie de pagina: Visa, Mastercard y AMEX; sin Yape ni bloque visual de libro de reclamaciones.
+6. Terminos: se aclaro el periodo de cancelacion de cinco minutos. PDF con metadatos de titulo y autor Pizzeria La Caleta.
+7. Imagenes nuevas: se guardan en PostgreSQL BYTEA. REQUISITO: ejecutar db/imagenes_productos_neon.sql ANTES de subir imagenes.
+8. Las imagenes subidas antiguamente al disco de Render no se pueden recuperar si Render ya borro esos archivos; volver a subirlas.
+9. Se mantiene el resto de las conexiones y la estructura de archivos. No se modificaron credenciales ni la configuracion SMTP.
+
+PRUEBAS PENDIENTES EN ENTORNO REAL:
+- Compilacion Maven completa, inicio de Spring Boot y guardado real de combos.
+- Carga/lectura de imagenes en Neon y Render.
+- Flujo de compra/cancelacion y recuento de insumos con datos reales.
+- Vista responsive en dispositivos fisicos.
+
+IMPORTANTE: no se afirma que el sistema este validado al 100% sin esas pruebas.

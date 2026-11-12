@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Caleta Pizza | Panel de Administración</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/style/styles.css}">
+    <link rel="stylesheet" th:href="@{/style/admin.css}">
+</head>
+
+<body>
+
+    <div class="caleta-admin-wrapper">
+
+        <!-- SIDEBAR -->
+        <aside class="caleta-sidebar">
+            <div>
+                <div class="caleta-logo-box">
+                    <h2>LA CALETA</h2>
+                    <p>ADMINISTRADOR PIZZERÍA</p>
+                </div>
+
+                <nav class="caleta-menu-nav">
+                    <button class="caleta-menu-btn activo" onclick="mostrarSeccion('dashboard', this)">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </button>
+                    <button class="caleta-menu-btn" onclick="mostrarSeccion('productos', this)">
+                        <i class="bi bi-pie-chart"></i> Catálogo de Pizzas
+                    </button>
+                    <button class="caleta-menu-btn" onclick="mostrarSeccion('stock', this)">
+                        <i class="bi bi-box-seam"></i> Insumos y Stock
+                    </button>
+                    <button class="caleta-menu-btn" onclick="mostrarSeccion('ventas', this)">
+                        <i class="bi bi-receipt"></i> Historial Pedidos
+                    </button>
+                    <button class="caleta-menu-btn" onclick="mostrarSeccion('clientes', this)">
+                        <i class="bi bi-people"></i> Clientes
+                    </button>
+                    <a th:href="@{/reportes}" class="caleta-menu-btn highlight">
+                        <i class="bi bi-bar-chart-line-fill"></i> Reportes & Métricas
+                    </a>
+                    <a th:href="@{/}" target="_blank" class="caleta-menu-btn text-muted" title="Abrir tienda en nueva pestaña">
+                        <i class="bi bi-shop"></i> Ver Tienda Web
+                    </a>
+                </nav>
+            </div>
+
+            <!-- PERFIL DEL ADMINISTRADOR -->
+            <div class="caleta-admin-user">
+                <p class="caleta-user-name" id="adminNombreDisplay" th:text="${usuario.nombre}">Guillermo Admin</p>
+                <span class="caleta-badge-rol">ADMINISTRADOR</span>
+                <div style="margin-top: 15px;">
+                    <a href="#" onclick="cerrarSesion()" class="caleta-btn-outline"
+                        style="width: 100%; justify-content: center;">
+                        <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ÁREA PRINCIPAL -->
+        <main class="caleta-admin-main">
+
+            <header class="caleta-header">
+                <h3 id="tituloSeccion">Dashboard de Control</h3>
+                <div class="caleta-header-actions">
+                    <a th:href="@{/reportes}" class="caleta-btn-outline">
+                        <i class="bi bi-graph-up"></i> Ver Reportes Gráficos
+                    </a>
+                    <button class="caleta-btn-primary" data-bs-toggle="modal" data-bs-target="#modalNuevaPizza">
+                        <i class="bi bi-plus-circle"></i> Nueva Pizza / Combo
+                    </button>
+                </div>
+            </header>
+
+            <!-- MENSAJES DE ESTADO FLASH -->
+
+            <!-- 1. DASHBOARD -->
+            <section id="dashboard" class="caleta-seccion activa">
+                <div class="caleta-kpi-grid">
+                    <div class="caleta-kpi-card">
+                        <div>
+                            <div class="caleta-kpi-label">Ventas del Día</div>
+                            <h4 class="caleta-kpi-val" id="kpi-ventas-dia">S/ 0.00</h4>
+                        </div>
+                        <i class="bi bi-currency-dollar caleta-kpi-icon"></i>
+                    </div>
+
+                    <div class="caleta-kpi-card carmesi">
+                        <div>
+                            <div class="caleta-kpi-label">Pizzas en Catálogo</div>
+                            <h4 class="caleta-kpi-val" id="kpi-pizzas-catalogo"
+                                th:text="${totalPizzas} + ' Variedades'">5 Variedades</h4>
+                        </div>
+                        <i class="bi bi-fire caleta-kpi-icon" style="color: var(--color-carmesi);"></i>
+                    </div>
+
+                    <div class="caleta-kpi-card alerta">
+                        <div>
+                            <div class="caleta-kpi-label">Insumos Críticos</div>
+                            <h4 class="caleta-kpi-val" id="kpi-insumos-criticos" style="color: #ca8a04;">0 Alertas</h4>
+                        </div>
+                        <i class="bi bi-exclamation-triangle caleta-kpi-icon" style="color: #ca8a04;"></i>
+                    </div>
+
+                    <div class="caleta-kpi-card verde">
+                        <div>
+                            <div class="caleta-kpi-label">Clientes Registrados</div>
+                            <h4 class="caleta-kpi-val" id="kpi-clientes" style="color: #15803d;">0</h4>
+                        </div>
+                        <i class="bi bi-people caleta-kpi-icon" style="color: #15803d;"></i>
+                    </div>
+                </div>
+
+                <div class="caleta-panel">
+                    <div class="caleta-panel-title d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div><i class="bi bi-clock-history text-ro"></i> Últimos Pedidos Registrados</div>
+                        <input type="text" id="buscarDashboardPedidos" class="caleta-search-input" placeholder="Buscar pedido reciente..." oninput="filtrarDashboardPedidos()" style="margin-bottom:0; max-width:240px;">
+                    </div>
+                    <div class="caleta-table-container">
+                        <table class="table caleta-table" id="tablaDashboardPedidos">
+                            <thead>
+                                <tr>
+                                    <th>Ticket</th>
+                                    <th>Fecha</th>
+                                    <th>Cliente</th>
+                                    <th>Método Pago</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:if="${pedidos == null or pedidos.isEmpty()}">
+                                <td colspan="6" class="text-center text-muted py-4">No hay pedidos recientes.</td>
+                            </tr>
+                            <tr th:each="pedido : ${pedidos}" class="fila-dashboard-pedido">
+                                <td><strong th:text="'#ORD-' + ${pedido.id}">#ORD-001</strong></td>
+                                <td th:text="${#temporals.format(pedido.fecha, 'dd/MM/yyyy HH:mm')}">Fecha</td>
+                                <td class="fw-bold" th:text="${pedido.usuario != null ? pedido.usuario.nombre : 'Cliente Anónimo'}">
+                                    Cliente</td>
+                                <td>
+                                    <span th:if="${pedido.metodoPago == 'ONLINE_SIMULADO'}" class="caleta-badge" style="background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;">
+                                        <i class="bi bi-credit-card me-1"></i>Tarjeta Online
+                                    </span>
+                                    <span th:unless="${pedido.metodoPago == 'ONLINE_SIMULADO'}" class="caleta-badge" th:text="${pedido.metodoPago != null ? #strings.replace(pedido.metodoPago, '_', ' ') : '-'}">Método Pago</span>
+                                </td>
+                                <td class="text-ro"><strong
+                                        th:text="'S/ ' + ${#numbers.formatDecimal(pedido.total, 1, 2)}">S/ 0.00</strong>
+                                </td>
+                                <td>
+                                    <span th:if="${pedido.estado == 'EN_PROCESO'}" class="caleta-badge" style="color:#854d0e;background:#fef3c7;border:1px solid #fcd34d">En proceso</span><span th:if="${pedido.estado == 'REALIZADO'}" class="caleta-badge success"><i class="bi bi-check2-circle me-1"></i>REALIZADO</span>
+                                    <span th:if="${pedido.estado == 'ENTREGADO'}" class="caleta-badge" style="background:#dbeafe;color:#1e40af;border:1px solid #bfdbfe;"><i class="bi bi-bag-check me-1"></i>ENTREGADO</span>
+                                    <span th:if="${pedido.estado == 'PENDIENTE'}" class="caleta-badge warning"><i class="bi bi-hourglass-split me-1"></i>PENDIENTE</span>
+                                    <span th:if="${pedido.estado == 'CANCELADO'}" class="caleta-badge danger"><i class="bi bi-x-circle me-1"></i>Cancelado</span>
+                                    <span th:if="${pedido.estado != 'REALIZADO' and pedido.estado != 'ENTREGADO' and pedido.estado != 'PENDIENTE' and pedido.estado != 'CANCELADO' and pedido.estado != 'EN_PROCESO'}" class="caleta-badge" th:text="${pedido.estado}">Recibido</span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. CATÁLOGO DE PIZZAS -->
+            <section id="productos" class="caleta-seccion">
+                <div class="caleta-panel">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                        <div class="d-flex flex-wrap gap-2 align-items-center">
+                          <input type="text" id="buscarProducto" class="caleta-search-input" placeholder="Buscar pizza por código o nombre..." oninput="filtrarProductosAdmin()" style="margin-bottom:0;">
+                          <select id="filtroCategoriaPizza" class="form-select" style="max-width:220px" onchange="filtrarProductosAdmin()"><option value="">Todas las categorías</option><option th:each="cat : ${categorias}" th:unless="${cat.codigo == 'especiales' or cat.codigo == 'fusion'}" th:value="${cat.codigo == 'combos' ? 'Combos' : cat.nombre}" th:text="${cat.codigo == 'combos' ? 'Combos' : cat.nombre}"></option></select>
+                          <select id="filtroDisponibilidadPizza" class="form-select" style="max-width:180px" onchange="filtrarProductosAdmin()"><option value="">Todos los estados</option><option value="disponible">Disponible</option><option value="agotado">Agotado</option></select>
+                          <span class="badge bg-light text-dark border py-2 px-3" id="contadorPizzasAdmin"></span>
+                        </div>
+                        <button class="caleta-btn-primary" data-bs-toggle="modal" data-bs-target="#modalNuevaPizza">
+                            <i class="bi bi-plus-lg"></i> Agregar Pizza al Menú
+                        </button>
+                    </div>
+
+                    <div class="caleta-table-container">
+                        <table class="table caleta-table" id="tablaProductos">
+                            <thead>
+                                <tr>
+                                    <th>Foto</th>
+                                    <th>Código</th>
+                                    <th>Pizza</th>
+                                    <th>Categoría</th>
+                                    <th>Tamaño</th>
+                                    <th>Capacidad</th>
+                                    <th>Precio</th>
+                                    <th>Visibilidad Menú</th>
+                                    <th style="text-align: center;">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="p : ${pizzas}" th:attr="data-categoria=${p.categoria != null ? (p.categoria.codigo == 'combos' ? 'Combos' : p.categoria.nombre) : ''},data-disponibilidad=${p.disponible != null and p.disponible and p.stock != null and p.stock > 0 ? 'disponible' : 'agotado'}">
+                                    <td>
+                                        <img th:src="${p.imagenUrl}" onerror="this.src='/images/producto_pepperoni.jpg'"
+                                            alt="Pizza"
+                                            style="width: 44px; height: 44px; object-fit: cover; border-radius: 6px;">
+                                    </td>
+                                    <td th:text="'#PZ-0' + ${p.id}">#PZ-01</td>
+                                    <td class="fw-bold" th:text="${p.nombre}">Nombre Pizza</td>
+                                    <td>
+                                        <span class="caleta-badge"
+                                            style="background-color: #f3f4f6; color: #1f2937; border: 1px solid #d1d5db; font-weight: 700;"
+                                            th:text="${p.categoria != null ? (p.categoria.codigo == 'combos' ? 'Combos' : p.categoria.nombre) : 'General'}">Clásicas</span>
+                                    </td>
+                                    <td th:text="${p.tamano != null ? p.tamano : 'No aplica'}">Familiar</td>
+                                    <td th:text="${p.capacidadPersonas != null ? p.capacidadPersonas : '—'}">—</td>
+                                    <td class="text-ro fw-bold"
+                                        th:text="'S/ ' + ${#numbers.formatDecimal(p.precio, 1, 2)}">S/ 0.00</td>
+                                    <td>
+                                        <span
+                                            th:class="${p.disponible != null and p.disponible and p.stock != null and p.stock > 0 ? 'caleta-badge success' : 'caleta-badge danger'}"
+                                            th:text="${p.disponible == null or !p.disponible ? 'Inhabilitado' : (p.stock != null and p.stock > 0 ? 'Disponible' : 'Agotado')}">Disponible</span>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <button class="caleta-btn-outline" style="padding: 4px 10px;"
+                                            title="Editar o Inhabilitar" th:data-id="${p.id}"
+                                            th:data-nombre="${p.nombre}" th:data-descripcion="${p.descripcion}" th:data-precio="${p.precio}" th:data-stock="${p.stock}"
+                                            th:data-tamano="${p.tamano != null ? p.tamano : ''}"
+                                            th:data-capacidad-personas="${p.capacidadPersonas != null ? p.capacidadPersonas : ''}"
+                                            th:data-categoria="${p.categoria != null ? p.categoria.codigo : 'clasicas'}"
+                                            th:data-disponible="${p.disponible != null ? p.disponible : true}"
+                                            th:data-img="${p.imagenUrl}" onclick="abrirModalEditar(this)">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                        <button type="button" class="caleta-btn-outline" th:data-id="${p.id}" th:data-categoria="${p.categoria != null ? p.categoria.codigo : ''}" onclick="abrirReceta(this.dataset.id, this.dataset.categoria)">Receta</button>
+                                        <form th:action="@{/admin/pizzas/eliminar/{id}(id=${p.id})}" method="post" class="d-inline" data-confirmar="¿Eliminar esta pizza del catálogo?">
+                                            <button type="submit" class="caleta-btn-outline" title="Eliminar"><i class="bi bi-trash"></i></button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. STOCK DE INSUMOS Y MATERIA PRIMA (FILTROS + TABLA DINÁMICA + MODAL NUEVO/EDITAR) -->
+            <section id="stock" class="caleta-seccion">
+                <div class="caleta-panel">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
+                        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                            <input type="text" id="buscarInsumoAdmin" class="caleta-search-input" placeholder="Buscar por código o nombre..." oninput="filtrarInsumosAdmin()" style="margin-bottom:0;">
+                            <select id="filtroEstadoInsumo" class="form-select" style="max-width:180px" onchange="filtrarInsumosAdmin()"><option value="">Todos los estados</option><option value="critico">Crítico</option><option value="optimo">Óptimo</option></select>
+                            <span class="badge bg-light text-dark border py-2 px-3" id="contadorInsumosAdmin"></span>
+                        </div>
+                        <form th:action="@{/admin}" method="get" style="display: none; gap: 8px; align-items: center;">
+                            <input type="text" name="buscarInsumo" class="caleta-search-input"
+                                th:value="${param.buscarInsumo}" placeholder="Buscar insumo por nombre o código..."
+                                style="margin-bottom: 0;">
+                            <button type="submit" class="caleta-btn-outline" style="padding: 8px 14px;">
+                                <i class="bi bi-search"></i> Filtrar
+                            </button>
+                            <a th:href="@{/admin#stock}" class="caleta-btn-outline" style="padding: 8px 10px;"
+                                title="Limpiar filtro">
+                                <i class="bi bi-x-lg"></i>
+                            </a>
+                        </form>
+
+                        <button class="caleta-btn-primary" data-bs-toggle="modal" data-bs-target="#modalNuevoInsumo">
+                            <i class="bi bi-plus-lg"></i> Registrar Nuevo Insumo
+                        </button>
+                    </div>
+
+                    <div class="caleta-panel-title" style="margin-top: 15px;">
+                        <i class="bi bi-box-seam text-ro"></i> Listado de Insumos y Materia Prima
+                    </div>
+
+                    <div class="caleta-table-container">
+                        <table class="table caleta-table" id="tablaInsumosAdmin">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Insumo</th>
+                                    <th>Stock Actual</th>
+                                    <th>Stock Mínimo</th>
+                                    <th>Estado de Reposición</th>
+                                    <th style="text-align: center;">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="ins : ${insumos}" th:attr="data-estado=${ins.critico ? 'critico' : 'optimo'}">
+                                    <td th:text="${ins.codigo}">INS-01</td>
+                                    <td class="fw-bold" th:text="${ins.nombre}">Queso Mozzarella</td>
+                                    <td><strong th:text="|${ins.stockActual} ${ins.unidadMedida}|">4 kg</strong>
+                                    </td>
+                                    <td th:text="|${ins.stockMinimo} ${ins.unidadMedida}|">5 kg</td>
+                                    <td>
+                                        <span th:if="${ins.critico}" class="caleta-badge danger">CRÍTICO (&le; <span
+                                                th:text="${ins.stockMinimo}"></span>)</span>
+                                        <span th:unless="${ins.critico}" class="caleta-badge success">ÓPTIMO</span>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <button class="caleta-btn-outline" style="padding: 4px 10px;"
+                                            title="Modificar Insumo" th:data-id="${ins.id}"
+                                            th:data-nombre="${ins.nombre}" th:data-stock="${ins.stockActual}"
+                                            th:data-unidad="${ins.unidadMedida}" th:data-minimo="${ins.stockMinimo}"
+                                            onclick="abrirModalEditarInsumo(this)">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                        <form th:action="@{/admin/insumos/eliminar/{id}(id=${ins.id})}" method="post"
+                                            style="display:inline;"
+                                            data-confirmar="¿Seguro que deseas eliminar este insumo?">
+                                            <button type="submit" class="caleta-btn-outline"
+                                                style="padding: 4px 10px; color: #dc2626;" title="Eliminar Insumo">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. HISTORIAL DE VENTAS -->
+            <section id="ventas" class="caleta-seccion">
+                <div class="caleta-panel">
+                    <div class="caleta-panel-title d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div><i class="bi bi-receipt text-ro"></i> Registro Histórico de Boletas y Pedidos</div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="exportarHistorialCSV()"><i class="bi bi-download me-1"></i>Exportar CSV</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="window.print()"><i class="bi bi-printer me-1"></i>Imprimir</button>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+                        <input type="search" id="buscarHistorialPedidos" class="caleta-search-input" placeholder="Buscar por boleta, cliente o método..." autocomplete="off" style="margin-bottom:0;" oninput="filtrarHistorialPedidos()">
+                        <select id="filtroEstadoHistorial" class="form-select" style="max-width:180px;" onchange="filtrarHistorialPedidos()">
+                            <option value="">Todos los estados</option>
+                            <option value="REALIZADO">Realizado</option>
+                            <option value="ENTREGADO">Entregado</option>
+                            <option value="PENDIENTE">Pendiente</option>
+                            <option value="CANCELADO">Cancelado</option>
+                        </select>
+                        <select id="filtroMetodoHistorial" class="form-select" style="max-width:190px;" onchange="filtrarHistorialPedidos()">
+                            <option value="">Todos los métodos</option>
+                            <option value="ONLINE_SIMULADO">Tarjeta Online</option>
+                            <option value="EFECTIVO">Efectivo</option>
+                            <option value="YAPE">Yape</option>
+                        </select>
+                        <span class="badge bg-light text-dark border ms-auto align-self-center py-2 px-3" id="contadorHistorialPedidos">Mostrando 0 pedidos</span>
+                    </div>
+                    <div class="caleta-table-container">
+                        <table class="table caleta-table" id="tablaHistorialPedidos">
+                            <thead>
+                                <tr>
+                                    <th># Boleta</th>
+                                    <th>Fecha</th>
+                                    <th>Cliente</th>
+                                    <th>Método Pago</th>
+                                    <th>Entrega</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${pedidos == null or pedidos.isEmpty()}">
+                                    <td colspan="7" class="text-center text-muted py-4">No hay historial de ventas.</td>
+                                </tr>
+                                <tr th:each="pedido : ${pedidos}" class="fila-historial-pedido"
+                                    th:attr="data-estado=${pedido.estado},data-metodo=${pedido.metodoPago},data-monto=${pedido.total}">
+                                    <td><strong th:text="'B001-' + ${#numbers.formatInteger(pedido.id, 4)}">B001-0001</strong></td>
+                                    <td th:text="${#temporals.format(pedido.fecha, 'dd/MM/yyyy HH:mm')}">Fecha</td>
+                                    <td class="fw-bold" th:text="${pedido.usuario != null ? pedido.usuario.nombre : 'Cliente Anónimo'}">
+                                        Cliente</td>
+                                    <td>
+                                        <span th:if="${pedido.metodoPago == 'ONLINE_SIMULADO'}" class="caleta-badge" style="background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;">
+                                            <i class="bi bi-credit-card me-1"></i>Tarjeta Online
+                                        </span>
+                                        <span th:unless="${pedido.metodoPago == 'ONLINE_SIMULADO'}" class="caleta-badge" th:text="${pedido.metodoPago != null ? #strings.replace(pedido.metodoPago, '_', ' ') : '-'}">Pago</span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${pedido.direccionEntrega == 'RETIRO EN TIENDA'}" class="caleta-badge" style="background:#fef3c7;color:#92400e;border:1px solid #fde68a;">
+                                            <i class="bi bi-shop me-1"></i>Retiro
+                                        </span>
+                                        <span th:unless="${pedido.direccionEntrega == 'RETIRO EN TIENDA'}" class="caleta-badge" style="background:#f3e8ff;color:#6b21a8;border:1px solid #e9d5ff;">
+                                            <i class="bi bi-bicycle me-1"></i>Delivery
+                                        </span>
+                                    </td>
+                                    <td class="text-ro fw-bold" th:text="'S/ ' + ${#numbers.formatDecimal(pedido.total, 1, 2)}">Monto</td>
+                                    <td>
+                                        <span th:if="${pedido.estado == 'EN_PROCESO'}" class="caleta-badge" style="color:#854d0e;background:#fef3c7;border:1px solid #fcd34d">En proceso</span><span th:if="${pedido.estado == 'REALIZADO'}" class="caleta-badge success"><i class="bi bi-check2-circle me-1"></i>REALIZADO</span>
+                                        <span th:if="${pedido.estado == 'ENTREGADO'}" class="caleta-badge" style="background:#dbeafe;color:#1e40af;border:1px solid #bfdbfe;"><i class="bi bi-bag-check me-1"></i>ENTREGADO</span>
+                                        <span th:if="${pedido.estado == 'PENDIENTE'}" class="caleta-badge warning"><i class="bi bi-hourglass-split me-1"></i>PENDIENTE</span>
+                                        <span th:if="${pedido.estado == 'CANCELADO'}" class="caleta-badge danger"><i class="bi bi-x-circle me-1"></i>Cancelado</span>
+                                        <span th:if="${pedido.estado != 'REALIZADO' and pedido.estado != 'ENTREGADO' and pedido.estado != 'PENDIENTE' and pedido.estado != 'CANCELADO' and pedido.estado != 'EN_PROCESO'}" class="caleta-badge" th:text="${pedido.estado}">Estado</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. CLIENTES -->
+            <section id="clientes" class="caleta-seccion">
+                <div class="caleta-panel">
+                    <div class="caleta-panel-title d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div><i class="bi bi-people text-ro"></i> Directorio de Clientes</div>
+                        <span class="badge bg-light text-dark border py-2 px-3" id="contadorClientesAdmin"></span>
+                    </div>
+                    <div class="d-flex gap-2 flex-wrap mb-3"><input id="buscarClienteDni" class="caleta-search-input" placeholder="Buscar cliente por DNI..." oninput="filtrarClientesAdmin()" style="margin-bottom:0;"><input id="buscarClienteNombre" class="caleta-search-input" placeholder="Nombre o teléfono..." oninput="filtrarClientesAdmin()" style="margin-bottom:0;"></div>
+                    <div class="caleta-table-container">
+                        <table class="table caleta-table" id="tablaClientesAdmin">
+                            <thead>
+                                <tr>
+                                    <th>DNI</th>
+                                    <th>Nombre Completo</th>
+                                    <th>Teléfono</th>
+                                    <th>Fecha Registro</th>
+                                    <th style="text-align: center;">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${clientes == null or clientes.isEmpty()}">
+                                    <td colspan="5" class="text-center text-muted py-4">Aún no hay clientes registrados
+                                        en la base de datos.</td>
+                                </tr>
+                                <tr th:each="c : ${clientes}" class="fila-cliente-admin">
+                                    <td th:text="${c.dni != null and !c.dni.isEmpty() ? c.dni : 'No especificado'}"
+                                        th:class="${c.dni == null or c.dni.isEmpty() ? 'text-muted' : 'fw-bold'}">No
+                                        especificado</td>
+                                    <td class="fw-bold" th:text="${c.nombre}">Nombre</td>
+                                    <td th:text="${c.telefono != null and !c.telefono.isEmpty() ? c.telefono : '-'}">Teléfono</td>
+                                    <td class="text-muted"><i class="bi bi-calendar3 me-1"></i><span
+                                            th:text="${#temporals.format(c.fechaRegistro, 'dd/MM/yyyy')}"></span></td>
+                                    <td style="text-align: center;">
+                                        <form th:action="@{/admin/clientes/eliminar/{id}(id=${c.id})}" method="post"
+                                            style="display:inline;"
+                                            data-confirmar="¿Seguro que deseas eliminar este cliente? Se borrará de la base de datos.">
+                                            <button type="submit" class="caleta-btn-outline"
+                                                style="padding: 4px 10px; color: #dc2626;" title="Eliminar Cliente">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- MODAL 1: REGISTRAR NUEVA PIZZA -->
+    <div class="modal fade" id="modalNuevaPizza" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content"
+                style="background-color: #ffffff; color: #212529; border: 1px solid #dee2e6;">
+                <div
+                    style="padding: 16px; border-bottom: 1px solid #dee2e6; display: flex; justify-content: space-between;">
+                    <h5 id="tituloModalNuevaPizza" style="margin: 0; font-weight: 700; color: var(--color-rojo-naranja);">
+                        <i class="bi bi-plus-circle me-2"></i>Registrar Pizza o Combo en Menú
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form th:action="@{/admin/pizzas/guardar}" method="post" enctype="multipart/form-data">
+                    <div class="alert alert-info mx-3 mt-3 mb-0">Para un combo o promoción, indica aquí cuántas pizzas y bebidas incluye. Después podrás configurar los productos exactos desde el botón Receta.</div>
+                    <div style="padding: 20px;">
+                        <div class="username mb-3">
+                            <label style="color: #374151;">Nombre de la pizza o combo</label>
+                            <input type="text" name="nombre" class="form-control" placeholder="Ej. Americana Suprema"
+                                required>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label style="color: #374151;">Categoría</label>
+                                <select name="codigoCategoria" class="form-select"
+                                    style="background:#fff; color:#212529; border:1px solid #ced4da;">
+                                    <option th:each="cat : ${categorias}" th:value="${cat.codigo}"
+                                        th:text="${cat.codigo == 'combos' ? 'Combos' : cat.nombre}">Categoría Dinámica</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label id="tamanoRegistroLabel" style="color: #374151;">Tamaño</label>
+                                <select name="tamano" class="form-select" required
+                                    style="background:#fff; color:#212529; border:1px solid #ced4da;">
+                                    <option value="Personal">Personal</option>
+                                    <option value="Mediana">Mediana</option>
+                                    <option value="Grande">Grande</option>
+                                    <option value="Familiar" selected>Familiar</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="configComboPromocion" class="p-3 mb-3 rounded-3" style="display:none; border:1px solid #dee2e6; background:#f8f9fa; color:#212529;">
+                            <h6 class="fw-bold mb-3" style="color:#9a5800;">Configuración del combo o promoción</h6>
+                            <div class="mb-3">
+                                <label for="capacidadPersonasRegistro" class="form-label fw-semibold">Capacidad de personas</label>
+                                <select id="capacidadPersonasRegistro" name="capacidadPersonas" class="form-select">
+                                    <option value="">Sin especificar</option>
+                                    <option value="1 persona">1 persona</option>
+                                    <option value="2 personas">2 personas</option>
+                                    <option value="3-4 personas">3-4 personas</option>
+                                    <option value="5 a más">5 a más</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label style="color:#374151;">Configuración de las pizzas</label>
+                                <select id="tipoPizzaCombo" name="tipoPizzaCombo" class="form-select">
+                                    <option value="PERSONALIZAR">Pizza personalizar (el cliente elige)</option>
+                                    <option value="DEFINIDA">Pizza definida (incluida en el combo)</option>
+                                    <option value="NINGUNA">No incluye pizza</option>
+                                </select>
+                                <small class="text-muted">Si eliges una pizza definida, el cliente no tendrá que escogerla otra vez.</small>
+                            </div>
+                            <div id="pizzaDefinidaWrap" class="mb-3" style="display:none;">
+                                <label style="color:#374151;">Selecciona la pizza que incluye</label>
+                                <select id="pizzaIncluidaId" name="pizzaIncluidaId" class="form-select">
+                                    <option value="">Seleccionar pizza...</option>
+                                    <option th:each="p : ${pizzasCatalogo}" th:value="${p.id}" th:text="|${p.nombre} (${p.tamano != null ? p.tamano : 'Tamaño no indicado'})|"></option>
+                                </select>
+                            </div>
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label for="cantidadPizzasCombo" class="form-label fw-semibold">Cantidad de pizzas incluidas</label>
+                                    <input id="cantidadPizzasCombo" name="cantidadPizzasCombo" type="number" class="form-control" min="0" max="20" value="1">
+                                    <small class="text-muted">Ejemplo: 2 pizzas medianas.</small>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="cantidadBebidasCombo" class="form-label fw-semibold">Cantidad de bebidas incluidas</label>
+                                    <input id="cantidadBebidasCombo" name="cantidadBebidasCombo" type="number" class="form-control" min="0" max="20" value="0">
+                                    <small class="text-muted">Ejemplo: 2 bebidas personales.</small>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label style="color:#374151;">Tamaño de las bebidas incluidas</label>
+                                <select name="tamanoBebidaCombo" class="form-select">
+                                    <option value="">No incluye bebida</option>
+                                    <option value="600 ml">600 ml</option>
+                                    <option value="1 L">1 L</option>
+                                    <option value="1.5 L">1.5 L</option>
+                                    <option value="3 L">3 L</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="avisoContenidoComboRegistro" class="border rounded p-3 mb-3" style="display:none;background:#f8f9fa;color:#212529">
+                            <h6 class="fw-bold" style="color:#9a5800">Contenido del combo o promoción</h6>
+                            <p class="small text-muted mb-2">Configura las cantidades aquí. Al guardar se abrirá el editor de contenido y receta, donde podrás agregar varias pizzas, bebidas y acompañamientos y elegir sus productos.</p>
+                            <div class="small" id="resumenRegistroCombo">0 pizzas · 0 bebidas</div>
+                        </div>
+                        <div class="username mb-3">
+                            <label style="color: #374151;">Precio de venta (S/)</label>
+                            <input type="number" step="0.50" name="precio" class="form-control" placeholder="Ej. 42.00"
+                                required>
+                        </div>
+                        <div class="username mb-3">
+                            <label style="color: #374151;">Subir archivo de imagen (PNG/JPG)</label>
+                            <input type="file" name="imagenArchivo" class="form-control" accept="image/png, image/jpeg">
+                        </div>
+
+                    </div>
+                    <div
+                        style="padding: 16px; border-top: 1px solid #dee2e6; display: flex; justify-content: flex-end; gap: 10px;">
+                        <button type="button" class="caleta-btn-outline" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="submit" class="caleta-btn-primary">Guardar Pizza</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL NUEVO INSUMO -->
+    <div class="modal fade" id="modalNuevoInsumo" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content"
+                style="background-color: #232323; color: #fff; border: 1px solid rgba(255,255,255,0.1);">
+                <div
+                    style="padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between;">
+                    <h5 style="margin: 0; font-weight: 700; color: var(--color-rojo-naranja);">
+                        <i class="bi bi-box-seam me-2"></i>Registrar Nuevo Insumo
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form th:action="@{/admin/insumos/guardar}" method="post">
+                    <div style="padding: 20px;">
+                        <div class="username mb-3">
+                            <label style="color: #d1d5db;">Nombre del Insumo</label>
+                            <input type="text" name="nombre" class="form-control" placeholder="Ej. Aceitunas Rodajas"
+                                required>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label style="color: #d1d5db;">Stock Actual</label>
+                                <input type="number" step="0.01" name="stockActual" class="form-control"
+                                    placeholder="Ej. 10.0" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label style="color: #d1d5db;">Unidad de Medida</label>
+                                <select name="unidadMedida" class="form-select" required>
+                                    <option value="" selected disabled>Selecciona una unidad</option>
+                                    <option value="kg">Kilogramos (kg)</option>
+                                    <option value="g">Gramos (g)</option>
+                                    <option value="litros">Litros (L)</option>
+                                    <option value="unidades">Unidades</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="username mb-3">
+                            <label style="color: #d1d5db;">Stock Mínimo (Alerta Crítica)</label>
+                            <input type="number" step="0.01" name="stockMinimo" class="form-control" value="5.0"
+                                required>
+                        </div>
+                    </div>
+                    <div
+                        style="padding: 16px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: flex-end; gap: 10px;">
+                        <button type="button" class="caleta-btn-outline" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="caleta-btn-primary">Guardar Insumo</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL EDITAR INSUMO -->
+    <div class="modal fade" id="modalEditarInsumo" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content"
+                style="background-color: #232323; color: #fff; border: 1px solid rgba(255,255,255,0.1);">
+                <div
+                    style="padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between;">
+                    <h5 style="margin: 0; font-weight: 700; color: var(--color-rojo-naranja);">
+                        <i class="bi bi-pencil-square me-2"></i>Modificar Insumo
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form th:action="@{/admin/insumos/guardar}" method="post">
+                    <input type="hidden" id="edit-insumo-id" name="id">
+                    <div style="padding: 20px;">
+                        <div class="username mb-3">
+                            <label style="color: #d1d5db;">Nombre del Insumo</label>
+                            <input type="text" id="edit-insumo-nombre" name="nombre" class="form-control" required>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label style="color: #d1d5db;">Stock Actual</label>
+                                <input type="number" step="0.01" id="edit-insumo-stock" name="stockActual"
+                                    class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label style="color: #d1d5db;">Unidad de Medida</label>
+                                <select id="edit-insumo-unidad" name="unidadMedida" class="form-select" required>
+                                    <option value="kg">Kilogramos (kg)</option>
+                                    <option value="g">Gramos (g)</option>
+                                    <option value="litros">Litros (L)</option>
+                                    <option value="unidades">Unidades</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="username mb-3">
+                            <label style="color: #d1d5db;">Stock Mínimo</label>
+                            <input type="number" step="0.01" id="edit-insumo-minimo" name="stockMinimo"
+                                class="form-control" required>
+                        </div>
+                    </div>
+                    <div
+                        style="padding: 16px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: flex-end; gap: 10px;">
+                        <button type="button" class="caleta-btn-outline" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="caleta-btn-primary">Actualizar Insumo</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: MODIFICAR / INHABILITAR PIZZA -->
+    <div class="modal fade" id="modalEditarPizza" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content"
+                style="background-color: #232323; color: #fff; border: 1px solid rgba(255,255,255,0.1);">
+                <div
+                    style="padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between;">
+                    <h5 style="margin: 0; font-weight: 700; color: var(--color-rojo-naranja);">
+                        <i class="bi bi-pencil-square me-2"></i>Modificar / Inhabilitar Pizza
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form th:action="@{/admin/pizzas/editar}" method="post" enctype="multipart/form-data">
+                    <input type="hidden" id="edit-id" name="id">
+                    <div class="alert alert-info mx-3 mt-3 mb-0">El stock disponible es automático y no se puede editar manualmente.</div>
+
+                    <div style="padding: 20px;">
+                        <div class="username mb-3">
+                            <label style="color: #d1d5db;">Nombre de la Pizza</label>
+                            <input type="text" id="edit-nombre" name="nombre" class="form-control" required>
+                        </div>
+                        <div class="username mb-3">
+                            <label style="color: #d1d5db;">Descripción</label>
+                            <textarea id="edit-descripcion" name="descripcion" class="form-control" rows="3"
+                                style="resize: vertical;"></textarea>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label style="color: #d1d5db;">Categoría</label>
+                                <select id="edit-categoria" name="codigoCategoria" class="form-select"
+                                    style="background:#222; color:#fff; border:1px solid #444;">
+                                    <option th:each="cat : ${categorias}" th:value="${cat.codigo}"
+                                        th:text="${cat.codigo == 'combos' ? 'Combos' : cat.nombre}">Categoría Dinámica</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6" id="edit-tamano-wrap">
+                                <label style="color: #d1d5db;">Tamaño</label>
+                                <select id="edit-tamano" name="tamano" class="form-select" required
+                                    style="background:#222; color:#fff; border:1px solid #444;">
+                                    <option value="Personal">Personal</option>
+                                    <option value="Mediana">Mediana</option>
+                                    <option value="Grande">Grande</option>
+                                    <option value="Familiar">Familiar</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6" id="edit-capacidad-personas-wrap">
+                                <label for="edit-capacidad-personas" style="color: #d1d5db;">Capacidad de personas</label>
+                                <select id="edit-capacidad-personas" name="capacidadPersonas" class="form-select"
+                                    style="background:#222; color:#fff; border:1px solid #444;">
+                                    <option value="">Sin especificar</option>
+                                    <option value="1 persona">1 persona</option>
+                                    <option value="2 personas">2 personas</option>
+                                    <option value="3-4 personas">3-4 personas</option>
+                                    <option value="5 a más">5 a más</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- CONTROL DE DISPONIBILIDAD -->
+                        <div class="username mb-3">
+                            <label style="color: #d1d5db;">Estado en Menú Web</label>
+                            <select id="edit-disponible" name="disponible" class="form-select"
+                                style="background:#222; color:#fff; border:1px solid #444;">
+                                <option value="true">Disponible (Visible para clientes)</option>
+                                <option value="false">Agotado / Inhabilitada (Oculta del menú)</option>
+                            </select>
+                        </div>
+
+                        <div class="username mb-3">
+                            <label style="color: #d1d5db;">Precio (S/)</label>
+                            <input type="number" step="0.50" id="edit-precio" name="precio" class="form-control"
+                                required>
+                        </div>
+                        <div class="username mb-3">
+                            <label style="color: #d1d5db;">Subir Nuevo Archivo (PNG/JPG)</label>
+                            <input type="file" name="imagenArchivo" class="form-control" accept="image/png, image/jpeg">
+                        </div>
+
+                    </div>
+                    <div
+                        style="padding: 16px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: flex-end; gap: 10px;">
+                        <button type="button" class="caleta-btn-outline" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="caleta-btn-primary">Actualizar Cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalConfirmarAdmin" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered"><div class="modal-content bg-dark text-white">
+        <div class="modal-header"><h5 class="modal-title">Confirmar operación</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
+        <div class="modal-body" id="mensajeConfirmarAdmin"></div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button type="button" class="btn btn-danger" id="aceptarConfirmarAdmin">Eliminar</button></div>
+      </div></div>
+    </div>
+    <div class="modal fade" id="modalReceta" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"><div class="modal-content combo-receta-modal">
+        <form id="formReceta"><div class="modal-header"><h5 class="modal-title" id="tituloModalReceta">Receta de producto</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" title="Cerrar ventana"></button></div>
+        <div class="modal-body"><div class="row g-3 align-items-start">
+          <div class="col-12" id="colContenidoCombo" style="display:none">
+            <div id="configRecetaCombo" class="border rounded p-3 h-100" style="display:none;border-color:#ced4da!important;background:#f8f9fa;color:#212529;">
+              <h6 class="fw-bold text-dark mb-2" style="color:#9a5800!important">Contenido del combo o promoción</h6>
+              <p class="small text-muted">Agrega las pizzas, bebidas y acompañamientos incluidos, con su tamaño y cantidad. Estos artículos definen lo que recibe el cliente.</p>
+              <div id="itemsComboAdmin" class="d-grid gap-3"></div>
+              <div class="alert alert-light border mt-3 mb-0 py-2"><strong>Resumen:</strong> <span id="resumenCantidadCombo">0 pizzas · 0 bebidas · 0 acompañamientos</span></div>
+              <div class="d-flex flex-wrap gap-2 mt-3">
+                <button type="button" id="agregarPizzaCombo" class="btn btn-outline-warning btn-sm">+ Agregar pizza</button>
+                <button type="button" id="agregarBebidaCombo" class="btn btn-outline-info btn-sm">+ Agregar bebida</button>
+                <button type="button" id="agregarAcompanamientoCombo" class="btn btn-outline-success btn-sm">+ Agregar acompañamiento</button>
+                
+              </div>
+              <small class="d-block text-muted mt-2">Los ingredientes se descuentan según las recetas de las pizzas y acompañamientos elegidos.</small>
+            </div>
+          </div>
+          <div class="col-12" id="colIngredientesReceta">
+            <h6 class="fw-bold mb-2">Insumos por unidad vendida</h6>
+            <p class="small text-muted">Busca los insumos registrados y escribe cuánto se consume por cada unidad vendida. Deja en cero los que no utiliza.</p>
+            <input type="search" id="buscarIngredienteReceta" class="form-control mb-3" placeholder="Filtrar por código o nombre del insumo..." autocomplete="off">
+            <div id="listaIngredientesReceta" class="lista-ingredientes-receta">
+              <label th:each="ins : ${insumosReceta}" style="display:none" class="d-block mb-2 p-2 border rounded ingrediente-receta-item" th:attr="data-busqueda=|${ins.codigo} ${ins.nombre} ${ins.unidadMedida}|">
+                <span class="d-block" th:text="|${ins.codigo} · ${ins.nombre} (${ins.unidadMedida}) · Stock: ${ins.stockActual}|"></span>
+                <input type="number" min="0" max="1000000" step="0.01" value="0" required class="form-control mt-1" th:data-insumo-id="${ins.id}" th:aria-label="|Cantidad de ${ins.nombre} por unidad vendida|">
+              </label>
+            </div>
+          </div>
+        </div></div><div class="modal-footer"><button type="submit" id="guardarReceta" class="btn btn-primary">Guardar receta</button></div></form>
+      </div></div>
+    </div>
+    <!-- SCRIPTS -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const categoria = document.querySelector('#modalNuevaPizza select[name="codigoCategoria"]');
+            const config = document.getElementById('configComboPromocion');
+            const tipoPizza = document.getElementById('tipoPizzaCombo');
+            const pizzaWrap = document.getElementById('pizzaDefinidaWrap');
+            const pizzaSelect = document.getElementById('pizzaIncluidaId');
+            const avisoCombo = document.getElementById('avisoContenidoComboRegistro');
+            const cantidadPizzas = document.getElementById('cantidadPizzasCombo');
+            const cantidadBebidas = document.getElementById('cantidadBebidasCombo');
+            const tamanoBebida = document.querySelector('#modalNuevaPizza select[name="tamanoBebidaCombo"]');
+            const capacidadPersonasWrap = document.getElementById('capacidadPersonasRegistro')?.parentElement;
+            function actualizarResumenRegistro() {
+                if (tipoPizza.value === 'NINGUNA') cantidadPizzas.value = 0;
+                cantidadPizzas.disabled = tipoPizza.value === 'NINGUNA';
+                if (Number(cantidadBebidas.value) === 0) tamanoBebida.value = '';
+                tamanoBebida.disabled = Number(cantidadBebidas.value) === 0;
+                document.getElementById('resumenRegistroCombo').textContent =
+                    `${tipoPizza.value === 'NINGUNA' ? 0 : Number(cantidadPizzas.value)||0} pizzas · ${Number(cantidadBebidas.value)||0} bebidas`;
+            }
+            cantidadPizzas.addEventListener('input', actualizarResumenRegistro);
+            cantidadBebidas.addEventListener('input', actualizarResumenRegistro);
+            function actualizarConfiguracionCombo() {
+                const codigo = (categoria?.value || '').toLowerCase();
+                const aplica = codigo === 'combos' || codigo === 'promociones' || codigo === 'promocion';
+                config.style.display = aplica ? 'block' : 'none';
+                avisoCombo.style.display = aplica ? 'block' : 'none';
+                if (capacidadPersonasWrap) capacidadPersonasWrap.style.display = aplica ? '' : 'none';
+                actualizarResumenRegistro();
+                tipoPizza.required = false;
+                pizzaWrap.style.display = aplica && tipoPizza.value === 'DEFINIDA' ? 'block' : 'none';
+                pizzaSelect.required = aplica && tipoPizza.value === 'DEFINIDA';
+            }
+            categoria?.addEventListener('change', actualizarConfiguracionCombo);
+            tipoPizza?.addEventListener('change', actualizarConfiguracionCombo);
+            actualizarConfiguracionCombo();
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <div th:replace="~{fragments/modals :: notificacionFlash}"></div>
+    <script th:src="@{/js/auth.js}"></script>
+    <script th:src="@{/js/admi.js}"></script>
+
+</body>
+
+</html>

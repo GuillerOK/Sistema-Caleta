@@ -1,0 +1,9 @@
+EJECUTAR EN JAVA 17 / VS CODE
+1. Abrir en VS Code la carpeta lacaleta_fix (la que contiene pom.xml), NO su carpeta padre.
+2. En terminal, verificar: java -version (debe decir 17), .\mvnw.cmd -version
+3. Compilar desde esa carpeta: .\mvnw.cmd clean package -DskipTests
+4. Ejecutar: .\mvnw.cmd spring-boot:run
+5. Si VS Code sigue mostrando ClassNotFoundException, abrir Command Palette y ejecutar Java: Clean Java Language Server Workspace, reiniciar VS Code y esperar a que Maven termine de importar.
+6. No usar el boton Run Java si el proyecto todavia no ha compilado.
+7. Si falla Maven, copiar las lineas [ERROR] completas de la terminal; las advertencias amarillas de null safety no prueban un error de compilacion.
+Nota: el proyecto conserva sus conexiones y configuraciones existentes.

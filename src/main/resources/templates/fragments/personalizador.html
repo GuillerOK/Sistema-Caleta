@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body>
+    <section th:fragment="bloque(grupo)"
+             class="bloque-personalizacion mb-3"
+             data-selection-group
+             th:attr="data-code=${grupo.codigo},
+                      data-role=${grupo.rol},
+                      data-min=${grupo.minSeleccion},
+                      data-max=${grupo.maxSeleccion}">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="fw-bold text-white mb-0 fs-6" th:text="${grupo.titulo}">Opciones</h5>
+            <span class="estado-seleccion small fw-semibold"
+                  data-selection-status
+                  th:classappend="${grupo.minSeleccion > 0 ? ' estado-requerido' : ' estado-opcional'}"
+                  th:attr="data-required=${grupo.minSeleccion > 0}"
+                  th:text="${grupo.minSeleccion > 0 ? 'Obligatorio' : 'Opcional'}">Opcional</span>
+        </div>
+        <div class="alerta-requerido mb-2 p-2 rounded-2 d-none" data-selection-alert>
+            <i class="fa-solid fa-circle-info me-2 text-warning"></i>
+            <span class="fs-xs text-warning-emphasis">Completa la selección requerida.</span>
+        </div>
+        <div class="card-acordeon-caleta p-3 rounded-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="small fw-semibold text-white-50"
+                      th:text="${grupo.multiple ? 'Puedes elegir varias opciones' : 'Selecciona una opción'}">
+                    Selecciona una opción
+                </span>
+                <span class="badge-contador" data-selection-count>0</span>
+            </div>
+            <div class="selection-options" data-selection-options>
+                <div class="selection-option" th:each="opcion, estado : ${grupo.opciones}">
+                    <input class="btn-check"
+                           data-selection-option
+                           th:type="${grupo.multiple ? 'checkbox' : 'radio'}"
+                           th:name="${'opcion-' + grupo.codigo}"
+                           th:id="${grupo.codigo + '-' + estado.index}"
+                           th:value="${opcion.clave}"
+                           th:data-label="${opcion.etiqueta}"
+                           th:data-producto-id="${opcion.productoId}"
+                           th:data-price="${opcion.precio}"
+                           th:data-image="${opcion.imagenUrl}">
+                    <label class="fila-opcion selection-option-label"
+                           th:for="${grupo.codigo + '-' + estado.index}">
+                        <span>
+                            <span class="small fw-bold text-white d-block" th:text="${opcion.etiqueta}">Opción</span>
+                            <span class="text-secondary fs-xs"
+                                  th:if="${opcion.descripcion != null}"
+                                  th:text="${opcion.descripcion}">Descripción</span>
+                        </span>
+                        <span class="small text-ro fw-bold text-nowrap"
+                              th:if="${opcion.precio != null and grupo.rol != 'CONFIGURACION'}"
+                              th:text="'S/ ' + ${#numbers.formatDecimal(opcion.precio, 1, 2)}">S/ 0.00</span>
+                        <span class="selection-indicator" aria-hidden="true"></span>
+                    </label>
+                </div>
+                <p th:if="${#lists.isEmpty(grupo.opciones)}" class="small text-secondary mb-0">
+                    No hay opciones disponibles por el momento.
+                </p>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

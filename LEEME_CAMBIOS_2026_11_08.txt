@@ -1,0 +1,24 @@
+LA CALETA - AJUSTES PUNTOS Y STOCK
+
+1. El pedido inicia EN_PROCESO. No acredita puntos hasta que el servidor lo confirma como REALIZADO a los 5 minutos.
+2. La confirmación se ejecuta cada 15 segundos y acredita puntos en la misma transacción que actualiza el estado.
+3. Después de confirmar se intenta enviar un correo HTML breve de confirmación. Requiere SMTP funcional; si falla se registra una advertencia.
+4. El stock de productos con receta se calcula a partir de las cantidades actuales de insumos. Se recalcula periódicamente y al consultar el catálogo.
+5. Producto.disponible es la habilitación MANUAL. No se cambia al recalcular stock. Si está false, no aparece aunque se repongan ingredientes.
+6. El menú exige habilitación manual y stock > 0. Los combos con componentes definidos/personalizables se revisan según sus productos.
+7. Los productos sin receta mantienen su stock anterior; configúralos en administración según corresponda.
+
+No se requiere SQL nuevo: se utilizan las tablas existentes.
+
+COMPILACIÓN JAVA 17:
+  .\mvnw.cmd clean package -DskipTests
+  .\mvnw.cmd spring-boot:run
+
+PRUEBAS RECOMENDADAS:
+- Crear pedido y verificar que puntos no aumentan antes de 5 minutos.
+- Confirmar que al llegar a REALIZADO los puntos se suman una sola vez y llega correo.
+- Cancelar dentro del plazo y verificar que no recibe puntos.
+- Agotar un ingrediente y verificar que la pizza se oculta; reponerlo y comprobar que reaparece.
+- Deshabilitar manualmente la pizza y reponer ingredientes: debe seguir oculta.
+
+NOTA: La entrega efectiva del correo depende de SMTP. No se ha ejecutado una prueba de integración con Neon ni SMTP en este entorno.

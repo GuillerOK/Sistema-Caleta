@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Caleta | Promociones</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/style/main.css}">
+    <link rel="stylesheet" th:href="@{/style/shop.css}">
+    <link rel="shortcut icon" th:href="@{/favicon.ico}" type="image/x-icon">
+</head>
+
+<body>
+
+    <div th:replace="~{fragments/header :: header('promociones')}"></div>
+
+    <main class="py-3">
+        <div th:replace="~{fragments/catalogo :: navPromociones}"></div>
+
+        <section id="promo-1persona" class="py-4 seccion-scroll">
+            <div class="container">
+                <div class="d-flex align-items-center mb-4 border-bottom border-secondary pb-2">
+                    <h3 class="fw-bold text-white mb-0 text-uppercase fs-4">Para 1 Persona (Pizzas Personales)</h3>
+                </div>
+                <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-2 g-sm-3 g-md-4">
+                    <th:block th:each="producto : ${promociones1Persona}">
+                        <div th:replace="~{fragments/catalogo :: tarjetaPromocion(${producto})}"></div>
+                    </th:block>
+                </div>
+                <div th:if="${#lists.isEmpty(promociones1Persona)}" class="text-center py-4 text-secondary">
+                    <p class="mb-0">No hay productos en esta sección por el momento.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="promo-2personas" class="py-4 seccion-scroll">
+            <div class="container">
+                <div class="d-flex align-items-center mb-4 border-bottom border-secondary pb-2">
+                    <h3 class="fw-bold text-white mb-0 text-uppercase fs-4">Para 2 Personas (Dúos Clásicos)</h3>
+                </div>
+                <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-2 g-sm-3 g-md-4">
+                    <th:block th:each="producto : ${promociones2Personas}">
+                        <div th:replace="~{fragments/catalogo :: tarjetaPromocion(${producto})}"></div>
+                    </th:block>
+                </div>
+                <div th:if="${#lists.isEmpty(promociones2Personas)}" class="text-center py-4 text-secondary">
+                    <p class="mb-0">No hay productos en esta sección por el momento.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="promo-3personas" class="py-4 seccion-scroll">
+            <div class="container">
+                <div class="d-flex align-items-center mb-4 border-bottom border-secondary pb-2">
+                    <h3 class="fw-bold text-white mb-0 text-uppercase fs-4">Para 3 a 4 Personas (Tríos Caleta)</h3>
+                </div>
+                <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-2 g-sm-3 g-md-4">
+                    <th:block th:each="producto : ${promociones3a4Personas}">
+                        <div th:replace="~{fragments/catalogo :: tarjetaPromocion(${producto})}"></div>
+                    </th:block>
+                </div>
+                <div th:if="${#lists.isEmpty(promociones3a4Personas)}" class="text-center py-4 text-secondary">
+                    <p class="mb-0">No hay productos en esta sección por el momento.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="promo-familiares" class="py-4 seccion-scroll">
+            <div class="container">
+                <div class="d-flex align-items-center mb-4 border-bottom border-secondary pb-2">
+                    <h3 class="fw-bold text-white mb-0 text-uppercase fs-4">Para 5 a Más (Banquetes y Familiares)</h3>
+                </div>
+                <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-2 g-sm-3 g-md-4">
+                    <th:block th:each="producto : ${promociones5Mas}">
+                        <div th:replace="~{fragments/catalogo :: tarjetaPromocion(${producto})}"></div>
+                    </th:block>
+                </div>
+                <div th:if="${#lists.isEmpty(promociones5Mas)}" class="text-center py-4 text-secondary">
+                    <p class="mb-0">No hay productos en esta sección por el momento.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer Fragment -->
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+
+    <!-- Modals / Offcanvas / Toasts Fragments -->
+    <div th:replace="~{fragments/modals :: offcanvasCarrito}"></div>
+    <div th:replace="~{fragments/modals :: offcanvasMenu}"></div>
+    <div th:replace="~{fragments/modals :: toastNotificacion}"></div>
+    <div th:replace="~{fragments/modals :: modalNotificacionGlobal}"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/ui.js}"></script>
+    <script th:src="@{/js/main.js}"></script>
+    <script th:src="@{/js/cart.js}"></script>
+    <script th:src="@{/js/auth.js}"></script>
+</body>
+
+</html>

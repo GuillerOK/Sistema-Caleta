@@ -1,0 +1,709 @@
+.caleta-admin-wrapper {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f3f4f6;
+    color: #1f2937;
+}
+
+/* Sidebar: fondo blanco con borde gris sutil */
+.caleta-sidebar {
+    width: 260px;
+    background-color: #ffffff;
+    border-right: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px 14px;
+    flex-shrink: 0;
+}
+
+.caleta-logo-box {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.caleta-logo-box h2 {
+    color: var(--color-rojo-naranja);
+    font-weight: 900;
+    margin: 0;
+    letter-spacing: 1px;
+}
+
+.caleta-logo-box p {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    color: #6b7280;
+    margin: 4px 0 0 0;
+}
+
+.caleta-menu-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.caleta-menu-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    color: #4b5563;
+    text-decoration: none;
+    font-size: 13.5px;
+    font-weight: 600;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: var(--transicion);
+}
+
+.caleta-menu-btn:hover {
+    background-color: #fff1ed;
+    color: var(--color-rojo-naranja);
+}
+
+.caleta-menu-btn.activo {
+    background-color: var(--color-rojo-naranja);
+    color: var(--color-blanco) !important;
+    box-shadow: 0 4px 12px rgba(255, 69, 0, 0.25);
+}
+
+.caleta-menu-btn.highlight {
+    color: var(--color-carmesi);
+}
+
+.caleta-admin-user {
+    padding-top: 14px;
+    border-top: 1px solid #e5e7eb;
+    text-align: center;
+}
+
+.caleta-user-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 4px;
+}
+
+.caleta-badge-rol {
+    background-color: var(--color-carmesi);
+    color: #fff;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-weight: 700;
+}
+
+/* Área de contenido: fondo gris neutro limpio */
+.caleta-admin-main {
+    flex-grow: 1;
+    background-color: #f8fafc;
+    padding: 24px;
+    overflow-y: auto;
+}
+
+.caleta-admin-main .caleta-table,
+.caleta-admin-main .caleta-table th,
+.caleta-admin-main .caleta-table td {
+    color: #212529 !important;
+}
+
+/* CORRECCIÓN DE COLISIÓN EN BADGES / INSIGNIAS */
+.caleta-badge {
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+/* Insignia genérica con fondo neutro y texto oscuro legible */
+.caleta-admin-main .caleta-table .caleta-badge {
+    background-color: #e5e7eb;
+    color: #374151 !important;
+}
+
+/* Insignias de estado con colores propios contrastados */
+.caleta-badge.success {
+    background-color: #dcfce7 !important;
+    color: #15803d !important;
+}
+
+.caleta-badge.warning {
+    background-color: #fef9c3 !important;
+    color: #a16207 !important;
+}
+
+.caleta-badge.danger {
+    background-color: #fee2e2 !important;
+    color: #b91c1c !important;
+}
+
+.caleta-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #e5e7eb;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.caleta-header h3 {
+    margin: 0;
+    font-weight: 800;
+    color: #111827;
+}
+
+.caleta-header-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Botones genéricos de admin */
+.caleta-btn-primary {
+    background-color: var(--color-rojo-naranja);
+    color: var(--color-blanco);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: var(--transicion);
+}
+
+.caleta-btn-primary:hover {
+    background-color: rgb(255, 95, 30);
+    color: #fff;
+}
+
+.caleta-btn-outline {
+    background: #ffffff;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: var(--transicion);
+}
+
+.caleta-btn-outline:hover {
+    border-color: var(--color-rojo-naranja);
+    color: var(--color-rojo-naranja);
+    background-color: #fff1ed;
+}
+
+/* KPIs / Tarjetas con fondo blanco y bordes suaves */
+.caleta-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.caleta-kpi-card {
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 16px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-left: 4px solid var(--color-rojo-naranja);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.caleta-kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.07);
+}
+
+.caleta-kpi-card.carmesi {
+    border-left-color: var(--color-carmesi);
+}
+
+.caleta-kpi-card.alerta {
+    border-left-color: #eab308;
+}
+
+.caleta-kpi-card.verde {
+    border-left-color: #22c55e;
+}
+
+.caleta-kpi-label {
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 4px;
+}
+
+.caleta-kpi-val {
+    font-size: 20px;
+    font-weight: 800;
+    color: #111827;
+    margin: 0;
+}
+
+.caleta-kpi-icon {
+    font-size: 22px;
+    color: var(--color-rojo-naranja);
+    background: rgba(255, 69, 0, 0.08);
+    padding: 10px;
+    border-radius: 50%;
+}
+
+/* Tablas y paneles */
+.caleta-panel {
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 18px;
+    margin-bottom: 20px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.caleta-panel-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #1f2937;
+}
+
+.caleta-search-input {
+    background-color: #ffffff;
+    border: 1px solid #d1d5db;
+    color: #1f2937;
+    padding: 8px 12px;
+    border-radius: 6px;
+    outline: none;
+    font-size: 13px;
+    width: 260px;
+    max-width: 100%;
+    margin-bottom: 14px;
+    transition: var(--transicion);
+}
+
+.caleta-search-input:focus {
+    border-color: var(--color-rojo-naranja);
+}
+
+.caleta-table-container {
+    overflow-x: auto;
+}
+
+.table.caleta-table {
+    --bs-table-bg: transparent;
+    --bs-table-color: #374151;
+    border-color: #e5e7eb;
+}
+
+.table.caleta-table thead th {
+    background-color: #f9fafb;
+    color: var(--color-rojo-naranja);
+    font-size: 11.5px;
+    text-transform: uppercase;
+    font-weight: 700;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.table.caleta-table tbody tr {
+    transition: background-color .15s ease;
+}
+
+.table.caleta-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+.caleta-badge i {
+    font-size: 11px;
+}
+
+.caleta-seccion {
+    display: none;
+}
+
+.caleta-seccion.activa {
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .caleta-admin-wrapper {
+        flex-direction: column;
+    }
+
+    .caleta-sidebar {
+        display: contents;
+    }
+
+    .caleta-logo-box {
+        order: 1;
+        background-color: #ffffff;
+        padding: 16px 14px 6px 14px;
+        text-align: center;
+    }
+
+    .caleta-menu-nav {
+        order: 2;
+        background-color: #ffffff;
+        display: flex;
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 6px 14px 12px 14px;
+        border-bottom: 1px solid #e5e7eb;
+        gap: 6px;
+    }
+
+    .caleta-menu-btn {
+        white-space: nowrap;
+        padding: 8px 12px;
+        font-size: 12.5px;
+    }
+
+    .caleta-admin-main {
+        order: 3;
+        padding: 16px 14px;
+    }
+
+    .caleta-admin-user {
+        order: 4;
+        background-color: #ffffff;
+        border-top: 1px solid #e5e7eb;
+        padding: 20px 14px;
+        text-align: center;
+        margin-top: auto;
+    }
+
+    .caleta-admin-user .btn-crear-cuenta,
+    .caleta-admin-user .caleta-btn-outline,
+    .caleta-admin-user a,
+    .caleta-admin-user button {
+        max-width: 280px;
+        margin: 10px auto 0 auto;
+    }
+
+    .caleta-kpi-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Modal de receta de combos: contraste alto y contenido legible */
+.combo-receta-modal {
+    background: #ffffff;
+    color: #212529;
+    border: 1px solid #dee2e6;
+    border-radius: 12px;
+}
+.combo-receta-modal .modal-header,
+.combo-receta-modal .modal-footer {
+    border-color: #dee2e6;
+}
+.combo-receta-modal .modal-title,
+.combo-receta-modal label,
+.combo-receta-modal .form-label {
+    color: #212529;
+}
+.combo-receta-modal .text-secondary,
+.combo-receta-modal .text-muted {
+    color: #5f6872 !important;
+}
+.combo-receta-modal .form-control,
+.combo-receta-modal .form-select {
+    background-color: #ffffff;
+    color: #212529;
+    border: 1px solid #adb5bd;
+    min-height: 38px;
+}
+.combo-receta-modal .form-control:focus,
+.combo-receta-modal .form-select:focus {
+    border-color: #b45309;
+    box-shadow: 0 0 0 .2rem rgba(180, 83, 9, .15);
+}
+.combo-receta-modal .combo-item-admin {
+    background: #ffffff;
+    border: 1px solid #ced4da !important;
+    padding: 14px !important;
+    border-radius: 10px;
+}
+.combo-receta-modal .combo-item-admin .form-label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: .82rem;
+    font-weight: 700;
+}
+.combo-receta-modal #itemsComboAdmin {
+    max-height: 46vh;
+    overflow-y: auto;
+    padding: 2px 6px 2px 2px;
+}
+#modalNuevaPizza .modal-content { color: #212529 !important; }
+#modalNuevaPizza .form-control,
+#modalNuevaPizza .form-select {
+    background-color: #fff !important;
+    color: #212529 !important;
+    border-color: #ced4da !important;
+}
+#modalNuevaPizza .form-control:focus,
+#modalNuevaPizza .form-select:focus {
+    border-color: #b45309 !important;
+    box-shadow: 0 0 0 .2rem rgba(180, 83, 9, .15);
+}
+
+/* Modal de insumos: contenido del combo a la izquierda e insumos a la derecha. */
+#modalReceta .combo-receta-modal .modal-body { overflow-x: hidden; }
+#modalReceta #colContenidoCombo,
+#modalReceta #colIngredientesReceta { min-width: 0; }
+#modalReceta #colIngredientesReceta { border-left: 1px solid #dee2e6; padding-left: 1rem; }
+#modalReceta .lista-ingredientes-receta {
+    max-height: 58vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 2px 6px 2px 2px;
+}
+#modalReceta .ingrediente-receta-item {
+    background: #fff;
+    border-color: #d4d9de !important;
+    color: #212529;
+}
+#modalReceta .ingrediente-receta-item span { overflow-wrap: anywhere; }
+@media (max-width: 1199.98px) {
+    #modalReceta #colIngredientesReceta { border-left: 0; border-top: 1px solid #dee2e6; padding-left: calc(var(--bs-gutter-x) * .5); padding-top: 1rem; }
+    #modalReceta .lista-ingredientes-receta { max-height: 35vh; }
+}
+
+/* Ajustes finales del modal de receta: columna de contenido más amplia y cierre visible. */
+#modalReceta .combo-receta-modal .modal-header { background: #fff; }
+#modalReceta .combo-receta-modal .btn-close { opacity: .85; flex-shrink: 0; padding: .65rem; }
+#modalReceta #colContenidoCombo { flex: 0 0 auto; }
+#modalReceta #colIngredientesReceta { flex: 0 0 auto; }
+#modalReceta .ci-tamano { min-width: 110px; }
+@media (min-width: 1200px) {
+  #modalReceta #colContenidoCombo.col-xl-7 { width: 58.33333333%; }
+  #modalReceta #colIngredientesReceta.col-xl-5 { width: 41.66666667%; }
+}
+
+
+/* Campo de cantidad legible en el editor de contenido del combo. */
+#modalReceta .combo-item-admin .ci-cantidad-wrap { min-width: 105px; }
+#modalReceta .combo-item-admin .ci-cantidad { width: 100%; min-width: 76px; min-height: 38px; padding: .375rem .5rem; text-align: center; font-size: 1rem; font-weight: 600; color: #212529; background: #fff; box-sizing: border-box; }
+#modalReceta .combo-item-admin .ci-cantidad:focus { outline: 0; border-color: #b45309; box-shadow: 0 0 0 .2rem rgba(180,83,9,.15); }
+@media (max-width: 767.98px) { #modalReceta .combo-item-admin .ci-cantidad-wrap { min-width: 0; } #modalReceta .combo-item-admin .ci-cantidad { min-width: 0; } }
+
+
+/* Desplazamiento real en el formulario largo de registrar pizza o combo. */
+#modalNuevaPizza .modal-content { max-height: calc(100dvh - 1.5rem); overflow: hidden; }
+#modalNuevaPizza form { min-height: 0; max-height: calc(100dvh - 5rem); overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; }
+#modalNuevaPizza form > div[style*="padding: 20px"] { padding-bottom: 1.25rem !important; }
+#modalNuevaPizza form > div[style*="justify-content: flex-end"] { position: sticky; bottom: 0; background: #fff; z-index: 2; }
+
+/* Mostrar todos los insumos al abrir la receta; filtrar reduce la lista sin ocultar el scroll. */
+#modalReceta .lista-ingredientes-receta { max-height: 55vh; overflow-y: auto; overflow-x: hidden; scrollbar-gutter: stable; overscroll-behavior: contain; }
+#modalReceta .ingrediente-receta-item { display: block; }
+#modalReceta .ingrediente-receta-item input[type="number"] { width: 100%; max-width: 115px; min-width: 85px; min-height: 34px; padding: .25rem .45rem; text-align: center; font-size: .95rem; font-weight: 600; box-sizing: border-box; }
+#modalReceta .ingrediente-receta-item span { line-height: 1.35; }
+@media (max-width: 767.98px) {
+  #modalNuevaPizza .modal-content { max-height: calc(100dvh - 1rem); }
+  #modalNuevaPizza form { max-height: calc(100dvh - 4rem); }
+  #modalReceta .lista-ingredientes-receta { max-height: 38vh; }
+}
+
+
+/* Modal receta: mantener Guardar receta siempre visible y desplazar solo el contenido. */
+#modalReceta .modal-dialog {
+  height: calc(100dvh - 1.5rem);
+  max-height: calc(100dvh - 1.5rem);
+  margin: .75rem auto;
+}
+#modalReceta .combo-receta-modal {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+}
+#modalReceta #formReceta {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+#modalReceta .modal-header,
+#modalReceta .modal-footer {
+  flex: 0 0 auto;
+  background: #fff;
+  position: relative;
+  z-index: 2;
+  padding: .65rem 1rem;
+}
+#modalReceta .modal-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  padding: .85rem 1rem;
+}
+#modalReceta .modal-footer {
+  border-top: 1px solid #dee2e6;
+  justify-content: flex-end;
+}
+#modalReceta #guardarReceta {
+  min-height: 38px;
+  white-space: nowrap;
+}
+@media (max-width: 575.98px) {
+  #modalReceta .modal-dialog {
+    height: calc(100dvh - .75rem);
+    max-height: calc(100dvh - .75rem);
+    margin: .375rem auto;
+  }
+  #modalReceta .modal-body { padding: .65rem; }
+  #modalReceta .modal-header,
+  #modalReceta .modal-footer { padding: .6rem .75rem; }
+}
+
+
+/* Ajuste visual final: campos del contenido del combo sin superponerse. */
+#modalReceta .combo-item-admin { min-width: 0; }
+#modalReceta .combo-item-admin > .row {
+  display: grid !important;
+  grid-template-columns: minmax(95px, .85fr) minmax(145px, 1.25fr) minmax(105px, .95fr);
+  gap: .65rem .75rem !important;
+  align-items: end !important;
+  margin: 0 !important;
+}
+#modalReceta .combo-item-admin > .row > div {
+  width: auto !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+#modalReceta .combo-item-admin > .row > div:nth-child(4) { grid-column: 1 / span 2; }
+#modalReceta .combo-item-admin > .row > div:nth-child(5) { grid-column: 3; }
+#modalReceta .combo-item-admin > .row > div:nth-child(6) { grid-column: 3; }
+#modalReceta .combo-item-admin .form-label { overflow-wrap: anywhere; }
+#modalReceta .combo-item-admin .form-select,
+#modalReceta .combo-item-admin .form-control { min-width: 0; width: 100%; }
+#modalReceta .combo-item-admin .ci-cantidad-wrap { min-width: 0; }
+#modalReceta .combo-item-admin .ci-cantidad { min-width: 0; max-width: 100%; }
+/* En receta de una pizza individual, la lista de insumos aprovecha todo el ancho. */
+#modalReceta #colIngredientesReceta.col-xl-12 { width: 100%; flex: 0 0 100%; }
+#modalReceta #colContenidoCombo[style*="display: none"] { display: none !important; }
+@media (max-width: 767.98px) {
+  #modalReceta .combo-item-admin > .row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  #modalReceta .combo-item-admin > .row > div:nth-child(4) { grid-column: 1 / -1; }
+  #modalReceta .combo-item-admin > .row > div:nth-child(5) { grid-column: 1; }
+  #modalReceta .combo-item-admin > .row > div:nth-child(6) { grid-column: 2; }
+}
+
+/* Ajustes responsivos del editor de recetas de combos */
+@media (max-width: 991.98px) {
+  #modalReceta .modal-dialog { max-width: calc(100% - 20px); margin: 10px auto; }
+  #modalReceta .modal-body { overflow-x: hidden; }
+  #modalReceta .combo-item-admin .row > div { min-width: 0; }
+  #modalReceta .combo-item-admin select, #modalReceta .combo-item-admin input { width: 100%; min-width: 0; }
+  #configRecetaCombo .d-flex { align-items: stretch; }
+}
+@media (max-width: 575.98px) {
+  #modalReceta .modal-dialog { max-width: calc(100% - 12px); margin: 6px auto; }
+  #modalReceta .modal-body { padding: 12px; }
+  #configRecetaCombo { padding: 12px !important; }
+  #configRecetaCombo .d-flex > button { flex: 1 1 100%; white-space: normal; }
+  #modalReceta .combo-item-admin .row > div { flex: 0 0 100%; max-width: 100%; }
+  #modalReceta .modal-footer { position: sticky; bottom: 0; background: var(--bs-modal-bg, #fff); z-index: 2; }
+}
+
+/* Ajuste de altura del recetario en pantallas móviles: sin espacio vacío forzado. */
+@media (max-width: 767.98px) {
+  #modalReceta .modal-dialog { height: auto; max-height: calc(100dvh - 16px); margin: 8px auto; }
+  #modalReceta .combo-receta-modal { height: auto; max-height: calc(100dvh - 16px); }
+  #modalReceta #formReceta { height: auto; max-height: calc(100dvh - 16px); }
+  #modalReceta .modal-body { flex: 0 1 auto; overflow-y: auto; max-height: calc(100dvh - 128px); }
+  #modalReceta .lista-ingredientes-receta { max-height: min(42vh, 350px); }
+  #modalReceta .modal-footer { flex: 0 0 auto; }
+}
+
+/* Recetas individuales: no reservar la altura completa del modal para pocas filas. */
+#modalReceta:has(#configRecetaCombo[style*="display: none"]) .modal-dialog { height: auto; max-height: calc(100dvh - 1.5rem); }
+#modalReceta:has(#configRecetaCombo[style*="display: none"]) .combo-receta-modal { height: auto; max-height: calc(100dvh - 1.5rem); }
+#modalReceta:has(#configRecetaCombo[style*="display: none"]) #formReceta { flex: 0 1 auto; }
+#modalReceta:has(#configRecetaCombo[style*="display: none"]) .modal-body { flex: 0 1 auto; }
+
+/* Ajuste de altura: las recetas individuales no deben reservar un panel vacío. */
+@media (min-width: 768px) {
+  #modalReceta:not(.receta-es-combo) .modal-dialog {
+    height: auto;
+    max-height: calc(100dvh - 2rem);
+    margin: 1rem auto;
+  }
+  #modalReceta:not(.receta-es-combo) .combo-receta-modal {
+    height: auto;
+    max-height: calc(100dvh - 2rem);
+  }
+  #modalReceta:not(.receta-es-combo) #formReceta {
+    flex: 0 1 auto;
+  }
+  #modalReceta:not(.receta-es-combo) .modal-body {
+    flex: 0 1 auto;
+    overflow-y: auto;
+  }
+  #modalReceta:not(.receta-es-combo) .lista-ingredientes-receta {
+    max-height: min(48dvh, 460px);
+  }
+}
+/* En iPhone y móviles, mantener los controles visibles sin desbordamiento horizontal. */
+@media (max-width: 575.98px) {
+  #modalReceta .modal-dialog { width: calc(100% - 12px); max-width: calc(100% - 12px); }
+  #modalReceta .combo-item-admin > .row { grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+  #modalReceta .combo-item-admin .ci-tipo,
+  #modalReceta .combo-item-admin .ci-modalidad,
+  #modalReceta .combo-item-admin .ci-producto { text-overflow: ellipsis; }
+  #modalReceta .modal-footer { padding-bottom: max(.75rem, env(safe-area-inset-bottom)); }
+}
+
+/* Editor unificado: los combos solo muestran sus artículos. */
+#modalReceta #colContenidoCombo { width: 100% !important; max-width: 100%; }
+#modalReceta #colContenidoCombo #configRecetaCombo { max-width: 850px; margin-inline: auto; }
+#modalReceta #colIngredientesReceta { border: 0 !important; padding-left: calc(var(--bs-gutter-x) * .5) !important; }
+#modalReceta #formReceta .modal-body { overflow-y: auto; }
+@media (max-width: 575.98px) {
+ #modalReceta #colContenidoCombo #configRecetaCombo { padding: .75rem !important; }
+ #modalReceta .combo-item-admin > .row { grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+ #modalReceta .modal-dialog { max-width: calc(100% - 12px); margin: 6px auto; }
+}
+
+/* Editor de combos: una sola columna, centrada, sin panel de insumos. */
+#modalReceta:has(#configRecetaCombo[style*="block"]) #colIngredientesReceta { display: none !important; }
+#modalReceta:has(#configRecetaCombo[style*="block"]) #colContenidoCombo { width: 100%; max-width: 850px; margin-inline: auto; }
+#modalReceta:has(#configRecetaCombo[style*="block"]) .modal-dialog { max-width: min(920px, calc(100vw - 1.5rem)); }
+@media (max-width: 767.98px) { #modalReceta:has(#configRecetaCombo[style*="block"]) #colContenidoCombo { padding-inline: 0; } }
+
+/* Vista exclusiva para combos/promociones: solo items, centrados y adaptables. */
+#modalReceta.modal-combo-items #colIngredientesReceta { display: none !important; }
+#modalReceta.modal-combo-items #colContenidoCombo { display: block !important; width: 100%; max-width: 100%; margin: 0 auto; }
+#modalReceta.modal-combo-items .modal-dialog { max-width: min(880px, calc(100vw - 24px)); }
+#modalReceta.modal-combo-items #configRecetaCombo { display: block !important; }
+#modalReceta.modal-combo-items .modal-body { max-height: min(75vh, 720px); overflow-y: auto; }
+@media (max-width: 600px) {
+  #modalReceta.modal-combo-items .modal-dialog { max-width: calc(100vw - 12px); margin: 6px auto; }
+  #modalReceta.modal-combo-items #configRecetaCombo { padding: 12px !important; }
+  #modalReceta.modal-combo-items .modal-body { max-height: 72dvh; }
+}

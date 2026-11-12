@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<body>
+    <nav th:fragment="navMenu" id="categorias" class="sticky-top py-2">
+        <div class="container">
+            <div class="d-flex flex-nowrap overflow-x-auto gap-2 py-1 categorias-scroll">
+                <button type="button" class="btn-categoria active text-nowrap"
+                    onclick="cambiarSeccion('promociones', this)">Promociones</button>
+                <button type="button" class="btn-categoria text-nowrap"
+                    onclick="cambiarSeccion('pizzas-principales', this)">Principales</button>
+                <button type="button" class="btn-categoria text-nowrap"
+                    onclick="cambiarSeccion('combos-secretos', this)">Combos Secretos</button>
+                <button type="button" class="btn-categoria text-nowrap"
+                    onclick="cambiarSeccion('acompanamientos', this)">Acompañamientos</button>
+                <button type="button" class="btn-categoria text-nowrap"
+                    onclick="cambiarSeccion('bebidas', this)">Bebidas</button>
+            </div>
+        </div>
+    </nav>
+
+    <nav th:fragment="navPromociones" id="categorias-promo" class="sticky-top py-2">
+        <div class="container">
+            <div class="d-flex flex-nowrap overflow-x-auto gap-2 py-1 categorias-scroll">
+                <button type="button" class="btn-categoria text-nowrap"
+                    onclick="desplazarASeccion('promo-1persona', this)">
+                    <i class="fa-solid fa-user me-1"></i> 1 PERSONA
+                </button>
+                <button type="button" class="btn-categoria text-nowrap"
+                    onclick="desplazarASeccion('promo-2personas', this)">
+                    <i class="fa-solid fa-user-group me-1"></i> 2 PERSONAS
+                </button>
+                <button type="button" class="btn-categoria text-nowrap"
+                    onclick="desplazarASeccion('promo-3personas', this)">
+                    <i class="fa-solid fa-users me-1"></i> 3-4 PERSONAS
+                </button>
+                <button type="button" class="btn-categoria text-nowrap"
+                    onclick="desplazarASeccion('promo-familiares', this)">
+                    <i class="fa-solid fa-people-group me-1"></i> 5 A MÁS
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Grilla de Productos -->
+    <section th:fragment="seccionGrilla(idSeccion, tituloSeccion, claseExtra, lista, tipo)" th:id="${idSeccion}"
+        class="py-4 seccion-scroll" th:classappend="${claseExtra}">
+        <div class="container">
+            <div th:if="${tituloSeccion != null and !tituloSeccion.isEmpty()}"
+                class="d-flex align-items-center mb-4 border-bottom border-secondary pb-2">
+                <h3 class="fw-bold text-white mb-0 text-uppercase fs-4" th:text="${tituloSeccion}">TÍTULO SECCIÓN</h3>
+            </div>
+            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-2 g-sm-3 g-md-4">
+                <div class="col d-flex justify-content-center" th:each="prod : ${lista}">
+                    <div class="card tarjeta-producto border-0 rounded-3 overflow-hidden shadow-sm w-100">
+                        <a
+                            th:href="@{/detalles(productoId=${prod.id})}">
+                            <img th:src="@{${prod.imagenUrl}}" class="card-img-top object-fit-cover"
+                                th:alt="${prod.nombre}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/images/producto_americana.jpg'">
+                        </a>
+                        <div class="card-body d-flex flex-column text-center p-2 p-sm-3">
+                            <a th:href="@{/detalles(productoId=${prod.id})}"
+                                class="text-decoration-none">
+                                <h5 class="fw-bold fs-6 mb-1 text-truncate" th:text="${prod.nombre}"
+                                    th:title="${prod.nombre}">Producto</h5>
+                            </a>
+                            <p class="small flex-grow-1 mb-2 mb-sm-3 desc-clamp" th:text="${prod.descripcion}">Descripción</p>
+                            <div
+                                class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25 mt-auto">
+                                <a th:href="@{/detalles(productoId=${prod.id})}"
+                                    class="btn-add-caleta rounded-circle d-flex align-items-center justify-content-center text-decoration-none flex-shrink-0"
+                                    title="Personalizar producto">
+                                    <i class="fa-solid fa-plus"></i>
+                                </a>
+                                <span class="fw-bold fs-6 text-nowrap ms-1 ms-sm-2"
+                                    th:text="'S/ ' + ${#numbers.formatDecimal(prod.precio, 1, 2)}">S/ 0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${#lists.isEmpty(lista)}" class="text-center py-4 text-secondary">
+                <p class="mb-0">No hay productos en esta sección por el momento.</p>
+            </div>
+        </div>
+    </section>
+
+    <div th:fragment="tarjetaPromocion(promo)" class="col d-flex justify-content-center">
+        <div class="card tarjeta-producto border-0 rounded-3 overflow-hidden shadow-sm w-100">
+            <a th:href="@{/detalles(productoId=${promo.id})}">
+                <img th:src="@{${promo.imagenUrl}}" class="card-img-top object-fit-cover" th:alt="${promo.nombre}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/images/producto_americana.jpg'">
+            </a>
+            <div class="card-body d-flex flex-column text-center p-2 p-sm-3">
+                <a th:href="@{/detalles(productoId=${promo.id})}" class="text-decoration-none">
+                    <h5 class="fw-bold fs-6 mb-1 text-truncate" th:text="${promo.nombre}" th:title="${promo.nombre}">
+                        Producto
+                    </h5>
+                </a>
+                <p class="small flex-grow-1 mb-2 mb-sm-3 desc-clamp" th:text="${promo.descripcion}">Descripción</p>
+                <div
+                    class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25 mt-auto">
+                    <a th:href="@{/detalles(productoId=${promo.id})}"
+                        class="btn-add-caleta rounded-circle d-flex align-items-center justify-content-center text-decoration-none flex-shrink-0"
+                        title="Personalizar producto">
+                        <i class="fa-solid fa-plus"></i>
+                    </a>
+                    <span class="fw-bold fs-6 text-nowrap ms-1 ms-sm-2"
+                        th:text="'S/ ' + ${#numbers.formatDecimal(promo.precio, 1, 2)}">S/ 0.00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Carrusel Horizontal -->
+    <section th:fragment="carruselHorizontal(idCarrusel, titulo, lista, tipo)" class="py-4 py-md-5">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-3 mb-md-4">
+                <h2 class="fw-bold mb-0 text-white fs-3 fs-md-2" th:text="${titulo}">TÍTULO</h2>
+                <div class="d-flex gap-2">
+                    <button class="btn-carrusel rounded-circle d-flex align-items-center justify-content-center"
+                        th:data-target="${idCarrusel}" onclick="desplazar(this.dataset.target, -280)"
+                        aria-label="Anterior">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <button class="btn-carrusel rounded-circle d-flex align-items-center justify-content-center"
+                        th:data-target="${idCarrusel}" onclick="desplazar(this.dataset.target, 280)"
+                        aria-label="Siguiente">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            <div th:id="${idCarrusel}" class="d-flex flex-nowrap overflow-x-auto gap-3 gap-md-4 pb-3 carrusel-horizontal">
+                <div th:each="prod : ${lista}"
+                    class="tarjeta-pizza card bg-white text-dark border-0 overflow-hidden flex-shrink-0">
+                    <a
+                        th:href="@{/detalles(productoId=${prod.id})}">
+                        <img th:src="@{${prod.imagenUrl}}" class="card-img-top object-fit-cover"
+                            th:alt="${prod.nombre}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/images/producto_americana.jpg'">
+                    </a>
+                    <div class="card-body d-flex flex-column text-center p-2 p-sm-3">
+                        <a th:href="@{/detalles(productoId=${prod.id})}"
+                            class="text-decoration-none text-dark">
+                            <h5 class="fw-bold fs-6 mb-1 text-truncate" th:text="${prod.nombre}">Nombre</h5>
+                        </a>
+                        <p class="text-secondary small flex-grow-1 mb-2 mb-sm-3 desc-clamp" th:text="${prod.descripcion}">
+                            Descripción</p>
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top mt-auto">
+                            <a th:href="@{/detalles(productoId=${prod.id})}"
+                                class="btn-add-caleta rounded-circle d-flex align-items-center justify-content-center text-decoration-none"
+                                title="Personalizar producto">
+                                <i class="fa-solid fa-plus"></i>
+                            </a>
+                            <span class="fw-bold fs-6 text-nowrap ms-1 ms-sm-2"
+                                th:text="'S/ ' + ${#numbers.formatDecimal(prod.precio, 1, 2)}">S/ 0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>
