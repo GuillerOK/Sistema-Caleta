@@ -12,9 +12,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import jakarta.mail.AuthenticationFailedException;
 import jakarta.mail.SendFailedException;
+
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
+import java.net.URI;
 import java.net.UnknownHostException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import javax.net.ssl.SSLException;
 import java.util.Locale;
 import java.util.regex.Pattern;
@@ -30,6 +36,10 @@ public class EmailService {
     @Value("${spring.mail.username:}")
     private String remitente;
 
+    // <--- SECCIÓN 1: AQUÍ JAVA LEE AUTOMÁTICAMENTE LA VARIABLE 'BREVO_API_KEY' QUE PUSISTE EN RENDER
+    @Value("${BREVO_API_KEY:}")
+    private String brevoApiKey;
+
     @Autowired
     private org.thymeleaf.TemplateEngine templateEngine;
 
@@ -40,30 +50,17 @@ public class EmailService {
 
     public String renderizarBoleta(com.lacaleta.model.Pedido pedido, java.math.BigDecimal subtotal,
                                    java.math.BigDecimal envio) {
-            var contexto = new org.thymeleaf.context.Context(Locale.forLanguageTag("es-PE"));
-            contexto.setVariable("pedido", pedido);
-            contexto.setVariable("fecha", pedido.getFecha().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
-            contexto.setVariable("items", pedido.getDetalles());
-            contexto.setVariable("subtotal", pedido.getSubtotal() != null ? pedido.getSubtotal() : subtotal);
-            contexto.setVariable("envio", pedido.getEnvio() != null ? pedido.getEnvio() : envio);
-            return templateEngine.process("boleta-email", contexto);
+        var contexto = new org.thymeleaf.context.Context(Locale.forLanguageTag("es-PE"));
+        contexto.setVariable("pedido", pedido);
+        contexto.setVariable("fecha", pedido.getFecha().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+        contexto.setVariable("items", pedido.getDetalles());
+        contexto.setVariable("subtotal", pedido.getSubtotal() != null ? pedido.getSubtotal() : subtotal);
+        contexto.setVariable("envio", pedido.getEnvio() != null ? pedido.getEnvio() : envio);
+        return templateEngine.process("boleta-email", contexto);
     }
 
     public void enviarHtml(String destinatario, Integer pedidoId, String html) {
-        if (mailSender == null) throw new CorreoException(CorreoException.Motivo.CONFIGURACION, null);
-        try {
-            var mensaje = mailSender.createMimeMessage();
-            var helper = new org.springframework.mail.javamail.MimeMessageHelper(mensaje, true, "UTF-8");
-            if (remitente != null && !remitente.isBlank()) helper.setFrom(remitente);
-            helper.setTo(destinatario);
-            helper.setSubject("La Caleta - Boleta del pedido #" + pedidoId);
-            helper.setText(html, true);
-            adjuntarLogoSiDisponible(helper);
-            mailSender.send(mensaje);
-        } catch (Exception error) {
-            registrarErrorEnvio(error);
-            throw new CorreoException(identificarMotivo(error, 0), error);
-        }
+        enviarHtmlConAsunto(destinatario, "La Caleta - Boleta del pedido #" + pedidoId, html);
     }
 
     private void adjuntarLogoSiDisponible(org.springframework.mail.javamail.MimeMessageHelper helper)
@@ -107,7 +104,6 @@ public class EmailService {
             + ".caleta-muted{color:#d1d5db!important}}</style></head>"
             + "<body class='caleta-body' style='margin:0;padding:24px 12px;background:#f6f3ef;color:#242424;font-family:Arial,sans-serif'>"
             + "<div class='caleta-panel' style='max-width:460px;margin:auto;background:#ffffff;color:#242424;padding:24px;border-radius:12px;text-align:center'>"
-            + "<div style='text-align:center;margin:0 0 14px'><img src='cid:logoCaleta' alt='La Caleta' width='150' style='display:block;width:150px;max-width:100%;height:auto;margin:0 auto'></div>"
             + "<h1 style='color:#e45b47;margin:0 0 12px'>La Caleta</h1>"
             + "<div style='font-size:42px;color:#16a34a'>&#10004;</div>"
             + "<h2 style='margin:12px 0'>¡Tu pedido ha sido realizado con éxito!</h2>"
@@ -118,6 +114,11 @@ public class EmailService {
     }
 
     private void enviarHtmlConAsunto(String destinatario, String asunto, String html) {
+        // <--- SECCIÓN 2A: SI HAY API KEY DE BREVO, ENVÍA POR HTTPS (BOLETAS Y CONFIRMACIONES)
+        if (brevoApiKey != null && !brevoApiKey.isBlank()) {
+            enviarPorBrevoApi(destinatario, asunto, html, true);
+            return;
+        }
         if (mailSender == null) throw new CorreoException(CorreoException.Motivo.CONFIGURACION, null);
         try {
             var mensaje = mailSender.createMimeMessage();
@@ -148,6 +149,11 @@ public class EmailService {
     }
 
     private boolean enviarMensaje(String destino, String asunto, String contenido) {
+        // <--- SECCIÓN 2B: SI HAY API KEY DE BREVO, ENVÍA POR HTTPS (CÓDIGOS DE VERIFICACIÓN Y RECUPERACIÓN)
+        if (brevoApiKey != null && !brevoApiKey.isBlank()) {
+            enviarPorBrevoApi(destino, asunto, contenido, false);
+            return true;
+        }
         if (mailSender == null) {
             log.error("CORREO_CONFIGURACION: no existe un JavaMailSender en la aplicación.");
             throw new CorreoException(CorreoException.Motivo.CONFIGURACION, null);
@@ -170,12 +176,58 @@ public class EmailService {
             }
             while (detalle.getCause() != null && detalle.getCause() != detalle) detalle = detalle.getCause();
             var status = SMTP_STATUS.matcher(String.valueOf(detalle.getMessage()));
-            // No registrar la contraseña, el OTP, el cuerpo del correo ni el destinatario.
             log.error("CORREO_{}: tipo={}, causa={}, SMTP={}", motivo,
                     e.getClass().getSimpleName(), detalle.getClass().getSimpleName(),
                     status.find() ? status.group() : "sin código de respuesta");
             throw new CorreoException(motivo, e);
         }
+    }
+
+    // <--- SECCIÓN 3: MÉTODO QUE USA LA API KEY PARA ENVIAR POR BREVO SIN BLOQUEO DE PUERTOS
+    private void enviarPorBrevoApi(String destinatario, String asunto, String cuerpo, boolean esHtml) {
+        try {
+            String emailRemitente = (remitente != null && !remitente.isBlank())
+                    ? remitente.trim()
+                    : "soporte.lacaleta@gmail.com";
+
+            String campoContenido = esHtml ? "htmlContent" : "textContent";
+            String jsonBody = "{"
+                    + "\"sender\":{\"name\":\"La Caleta Pizzeria\",\"email\":\"" + escaparJson(emailRemitente) + "\"},"
+                    + "\"to\":[{\"email\":\"" + escaparJson(destinatario.trim()) + "\"}],"
+                    + "\"subject\":\"" + escaparJson(asunto) + "\","
+                    + "\"" + campoContenido + "\":\"" + escaparJson(cuerpo) + "\""
+                    + "}";
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.brevo.com/v3/smtp/email"))
+                    .header("accept", "application/json")
+                    .header("api-key", brevoApiKey.trim()) // <--- AQUÍ SE INYECTA EL VALOR DE LA API KEY
+                    .header("content-type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonBody, StandardCharsets.UTF_8))
+                    .build();
+
+            HttpResponse<String> response = HttpClient.newHttpClient()
+                    .send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+
+            if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                log.error("FALLO_BREVO_API status={}, body={}", response.statusCode(), response.body());
+                throw new CorreoException(CorreoException.Motivo.AUTENTICACION, null);
+            }
+        } catch (CorreoException ce) {
+            throw ce;
+        } catch (Exception e) {
+            log.error("FALLO_CONEXION_BREVO: {}", e.getMessage());
+            throw new CorreoException(CorreoException.Motivo.CONEXION, e);
+        }
+    }
+
+    private String escaparJson(String texto) {
+        if (texto == null) return "";
+        return texto.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\t", "\\t");
     }
 
     private CorreoException.Motivo identificarMotivo(Throwable error, int profundidad) {
