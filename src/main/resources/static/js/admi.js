@@ -366,8 +366,19 @@ if (coincide) visibles++;
   filtrarClientesAdmin();
 
   // Al crear una pizza, el controlador puede redirigir con ?receta=ID para abrir su receta.
-  const nuevaRecetaId = new URLSearchParams(window.location.search).get('receta');
-  if (nuevaRecetaId) { mostrarSeccion('productos', document.querySelectorAll('.caleta-menu-btn')[1]); abrirReceta(nuevaRecetaId); }
+  const parametros = new URLSearchParams(window.location.search);
+const nuevaRecetaId = parametros.get('receta');
+const categoriaReceta = parametros.get('categoria') || '';
+
+if (nuevaRecetaId) {
+    mostrarSeccion(
+        'productos',
+        document.querySelectorAll('.caleta-menu-btn')[1]
+    );
+setTimeout(() => {
+    abrirReceta(nuevaRecetaId, categoriaReceta);
+}, 0);
+}
 });
 
 // Editor de artículos del combo: los botones + son únicamente del panel administrador.
