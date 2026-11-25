@@ -482,7 +482,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const r=await fetch(`/api/admin/productos/${id}/configuracion-combo`);
       if(!r.ok)throw new Error('No se pudo consultar la configuración del combo.');
       const c=await r.json();
-      const esCombo=!!c.esCombo;
+      const esCombo = c.esCombo === true;
       document.getElementById('modalReceta').classList.toggle('modal-combo-items', esCombo);
       panel.style.display=esCombo?'block':'none';
       if(colCombo) {
@@ -495,7 +495,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       document.getElementById('tituloModalReceta').textContent=esCombo?'Contenido del combo o promoción':'Insumos por unidad vendida';
       document.getElementById('guardarReceta').textContent=esCombo?'Guardar combo o promoción':'Guardar receta';
-      await cargar(id);
+     if (esCombo) {
+    await cargar(id);
+}
     }catch(e){console.warn('Error al cargar el tipo de receta:',e);throw e;}
   };
   window.guardarContenidoCombo=async({silencioso=false}={})=>{
