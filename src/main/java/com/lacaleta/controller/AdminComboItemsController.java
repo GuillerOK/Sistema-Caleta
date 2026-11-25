@@ -66,20 +66,18 @@ public class AdminComboItemsController {
             descripcion.append(x.cantidad()).append(" x ").append(nombre);
             if(!"NINGUNA".equals(x.modalidad()) && tamanoGuardado!=null&&!tamanoGuardado.isBlank()) descripcion.append(" - ").append(tamanoGuardado);
         }
-        items.deleteByComboProductoId(productoId);items.flush();items.saveAll(nuevos);
-        Producto p=productos.buscarPorId(productoId).orElseThrow();p.setDescripcion(descripcion.toString());productos.guardar(p);
-        // Ejecutar el recálculo tras confirmar la transacción, para que lea los nuevos ítems.
-        if (org.springframework.transaction.support.TransactionSynchronizationManager.isSynchronizationActive()) {
-            org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization(
-                new org.springframework.transaction.support.TransactionSynchronization() {
-                    @Override public void afterCommit() {
-                        try { disponibilidad.actualizarStockCalculado(); }
-                        catch (org.springframework.orm.ObjectOptimisticLockingFailureException ex) {
-                            // Otra actualización de stock ganó; el planificador recalculará después.
-                        }
-                    }
-                });
-        }
-        return Map.of("mensaje","Contenido del combo guardado en la base de datos.");
+       items.deleteByComboProductoId(productoId);
+items.flush();
+items.saveAll(nuevos);
+items.flush();
+
+Producto p = productos.buscarPorId(productoId).orElseThrow();
+p.setDescripcion(descripcion.toString());
+productos.guardar(p);
+
+disponibilidad.actualizarStockCalculado();
+
+return Map.of("mensaje",
+        "Contenido del combo guardado en la base de datos.");
     }
 }
