@@ -304,8 +304,9 @@ public class ProductoService {
                 .filter(this::visibleEnCarta)
                 .filter(producto -> {
                     String capacidad = producto.getCapacidadPersonas();
-                  if (capacidad == null || capacidad.isBlank()) {
+              if (capacidad == null || capacidad.isBlank()) {
     return false;
+}
 }
                     return capacidadEsperada.equals(normalizarCapacidadPersonas(capacidad));
                 })
