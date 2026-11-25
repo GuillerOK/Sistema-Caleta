@@ -128,9 +128,9 @@ public class AdminProductoController {
         flash.addFlashAttribute("exito", esComboOPromocion
                 ? "Combo o promoción registrado con su configuración de pizza y bebida."
                 : "Pizza registrada correctamente. Configura ahora su receta para calcular el stock.");
-      return "redirect:/admin?receta=" + pizza.getId()
-        + "&categoria=" + categoriaNormalizada
-        + "#productos";
+    return "redirect:/admin?receta=" + pizza.getId()
+    + "&categoriaReceta=" + categoriaNormalizada
+    + "#productos";
     }
 
     // POST: /admin/pizzas/editar (Modificar pizza desde el modal de edición)
