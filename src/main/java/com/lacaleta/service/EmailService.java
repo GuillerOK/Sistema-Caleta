@@ -127,7 +127,6 @@ public class EmailService {
             helper.setTo(destinatario);
             helper.setSubject(asunto);
             helper.setText(html, true);
-            adjuntarLogoSiDisponible(helper);
             mailSender.send(mensaje);
         } catch (Exception error) {
             registrarErrorEnvio(error);
