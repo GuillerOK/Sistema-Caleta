@@ -198,7 +198,7 @@ public class PageController {
 
         cargarUsuarioEnModelo(model, session);
 
-        var listaPizzas = productoService.listarConFiltros(categoria, disponible, buscar);
+       var listaPizzas = productoService.listarConFiltros(null, null, null);
         var listaInsumos = insumoService.listarConFiltro(buscarInsumo);
 
         model.addAttribute("pizzas", listaPizzas);
