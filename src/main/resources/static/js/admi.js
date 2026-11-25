@@ -368,7 +368,7 @@ if (coincide) visibles++;
   // Al crear una pizza, el controlador puede redirigir con ?receta=ID para abrir su receta.
   const parametros = new URLSearchParams(window.location.search);
 const nuevaRecetaId = parametros.get('receta');
-const categoriaReceta = parametros.get('categoria') || '';
+const categoriaReceta = parametros.get('categoriaReceta') || '';
 
 if (nuevaRecetaId) {
     mostrarSeccion(
