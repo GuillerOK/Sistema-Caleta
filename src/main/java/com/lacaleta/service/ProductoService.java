@@ -297,21 +297,26 @@ public class ProductoService {
                         || p.getNombre().contains("Fiesta")
                         || p.getNombre().contains("Gran Cofradía")));
     }
+  
+private List<Producto> obtenerPromosPorCapacidad(
+        String capacidadEsperada,
+        java.util.function.Predicate<Producto> criterioLegado) {
 
-    private List<Producto> obtenerPromosPorCapacidad(
-            String capacidadEsperada, java.util.function.Predicate<Producto> criterioLegado) {
-        return productoRepository.findAll().stream()
-                .filter(this::visibleEnCarta)
-                .filter(producto -> {
-                    String capacidad = producto.getCapacidadPersonas();
-              if (capacidad == null || capacidad.isBlank()) {
-    return false;
+    return productoRepository.findAll().stream()
+            .filter(this::visibleEnCarta)
+            .filter(producto -> {
+                String capacidad = producto.getCapacidadPersonas();
+
+                if (capacidad == null || capacidad.isBlank()) {
+                    return false;
+                }
+
+                return capacidadEsperada.equals(
+                        normalizarCapacidadPersonas(capacidad));
+            })
+            .toList();
 }
-}
-                    return capacidadEsperada.equals(normalizarCapacidadPersonas(capacidad));
-                })
-                .toList();
-    }
+
 
     private String normalizarCapacidadPersonas(String capacidad) {
         String normalizada = java.text.Normalizer.normalize(
